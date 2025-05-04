@@ -1,5 +1,6 @@
 package com.linku.backend.domain;
 
+import com.linku.backend.global.common.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,9 +24,4 @@ public abstract class BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    public enum Status {
-        ACTIVE,
-        DELETED
-    }
 }
