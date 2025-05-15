@@ -3,13 +3,11 @@ package com.linku.backend.global.util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -23,24 +21,20 @@ public class S3Uploader {
 
     private final S3Client s3Client;
 
-    public String uploadFile(MultipartFile multipartFile) {
-        if(multipartFile.isEmpty()) {
-            throw new RuntimeException("MultipartFile is empty");
+    public String uploadFile(byte[] data, String originalFilename, String contentType) {
+        if (data == null || data.length == 0) {
+            throw new RuntimeException("File data is empty");
         }
-        String fileName = getFileName(multipartFile);
+        String fileName = buildFileName(originalFilename);
 
-        try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .contentType(multipartFile.getContentType())
-                    .contentLength(multipartFile.getSize())
-                    .key(fileName)
-                    .build();
-            RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
-            s3Client.putObject(putObjectRequest, requestBody);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .contentType(contentType)
+                .contentLength((long) data.length)
+                .key(fileName)
+                .build();
+
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(data));
 
         GetUrlRequest getUrlRequest = GetUrlRequest.builder()
                 .bucket(bucketName)
@@ -48,10 +42,6 @@ public class S3Uploader {
                 .build();
 
         return s3Client.utilities().getUrl(getUrlRequest).toString();
-    }
-
-    public String getFileName(MultipartFile multipartFile) {
-        return buildFileName(multipartFile.getOriginalFilename());
     }
 
     public String buildFileName(String originalFileName) {
