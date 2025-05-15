@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 public enum ResponseCode {
 
     // 1000 번대 : global 요청 성공/실패
-    SUCCESS(true, 1000, "요청에 성공하였습니다.");
+    SUCCESS(true, 1000, "요청에 성공하였습니다."),
+    FAILURE(false, 1001, "요청에 실패하였습니다.");
 
     private boolean isSuccess;
     private int code;
