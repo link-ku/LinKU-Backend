@@ -1,5 +1,8 @@
 package com.linku.backend.global.crawler;
 
+import lombok.Getter;
+
+@Getter
 public class DepartmentConfig {
     private String name;
     private String url;

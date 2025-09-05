@@ -1,23 +1,18 @@
 package com.linku.backend.global.crawler;
 
-import com.example.crawler.config.DepartmentConfig;
-import com.example.crawler.domain.Alert;
-import com.example.crawler.parser.AlertParser;
-import com.example.crawler.parser.HtmlParser;
-import com.example.crawler.parser.RssParser;
+import com.linku.backend.domain.alert.Alert;
+import com.linku.backend.domain.alert.service.AlertService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CrawlService {
-    private static final Logger log = LoggerFactory.getLogger(CrawlService.class);
-
     private final List<DepartmentConfig> configs;
     private final AlertService alertService;
     private final NotificationService notificationService;
