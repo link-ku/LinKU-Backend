@@ -1,6 +1,7 @@
 package com.linku.backend.domain.alert.service;
 
 import com.linku.backend.domain.alert.Alert;
+import com.linku.backend.domain.alert.repository.AlertRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
