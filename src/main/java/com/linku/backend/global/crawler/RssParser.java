@@ -8,25 +8,36 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class RssParser implements AlertParser {
     @Override
     public List<Alert> parse(DepartmentConfig config) throws IOException {
         Document doc = Jsoup.connect(config.getUrl()).get();
         Elements items = doc.select("item");
-        List<Alert> alerts = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
 
-        for (Element item : items) {
-            Alert alert = new Alert();
-            alert.setTitle(item.select("title").text());
-            alert.setUrl(item.select("link").text());
-            alert.setDate(LocalDateTime.now()); // RSS 'pubDate'를 파싱하여 사용 가능
-            alert.setDepartment(config.getName());
-            alerts.add(alert);
-        }
-        return alerts;
+        return items.stream()
+                .map(item -> {
+                    Alert alert = new Alert();
+                    alert.setTitle(item.select("title").text());
+                    alert.setUrl(item.select("link").text());
+
+                    String pubDateStr = item.select("pubDate").text();
+                    if (!pubDateStr.isEmpty()) {
+                        ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDateStr, formatter);
+                        alert.setPostTime(zonedDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+                    } else {
+                        alert.setPostTime(LocalDateTime.now());
+                    }
+                    return alert;
+                })
+                .collect(Collectors.toList());
     }
 }
 
