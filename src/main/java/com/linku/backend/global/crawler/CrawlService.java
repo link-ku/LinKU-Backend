@@ -15,18 +15,18 @@ import java.util.List;
 public class CrawlService {
     private final List<DepartmentConfig> configs;
     private final AlertService alertService;
-    private final NotificationService notificationService;
+    private final AlertParserFactory parserFactory;
 
     public void crawlAll() {
         for (DepartmentConfig config : configs) {
             try {
-                AlertParser parser = config.isRss() ? new RssParser() : new HtmlParser();
+                // 팩토리를 통해 파서 객체를 가져옴
+                AlertParser parser = parserFactory.getParser(config);
                 List<Alert> parsed = parser.parse(config);
 
                 for (Alert alert : parsed) {
                     if (alertService.isNew(alert)) {
                         alertService.save(alert);
-                        notificationService.notifyUsers(alert);
                     }
                 }
             } catch (IOException e) {
@@ -35,5 +35,6 @@ public class CrawlService {
                 log.error("예상치 못한 오류: dept={}, url={}", config.getName(), config.getUrl(), e);
             }
         }
+    }
     }
 }
