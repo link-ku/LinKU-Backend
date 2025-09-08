@@ -1,8 +1,10 @@
-package com.linku.backend.global.crawler;
+package com.linku.backend.global.crawler.service;
 
 import com.linku.backend.domain.alert.service.AlertService;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
+import com.linku.backend.global.crawler.Parser.AlertParser;
+import com.linku.backend.global.crawler.Parser.AlertParserFactory;
 import com.linku.backend.global.exception.LinkuException;
 import com.linku.backend.global.response.ResponseCode;
 import jakarta.annotation.PostConstruct;
@@ -16,7 +18,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 @Service

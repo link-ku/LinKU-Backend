@@ -1,4 +1,4 @@
-package com.linku.backend.global.crawler;
+package com.linku.backend.global.crawler.Parser;
 
 import com.linku.backend.domain.alert.Alert;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;

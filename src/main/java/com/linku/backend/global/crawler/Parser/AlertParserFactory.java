@@ -1,4 +1,4 @@
-package com.linku.backend.global.crawler;
+package com.linku.backend.global.crawler.Parser;
 
 import org.springframework.stereotype.Component;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
