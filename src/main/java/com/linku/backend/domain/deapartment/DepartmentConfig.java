@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Setter
-public class Department {
+public class DepartmentConfig {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +21,5 @@ public class Department {
     private String url;
     private boolean isRss;
     private String lastModified; // 최종 수정 시간 저장
+    private String contentSelector; // HTML 파서용
 }

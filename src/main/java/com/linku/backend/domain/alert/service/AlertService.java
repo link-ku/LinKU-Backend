@@ -19,7 +19,7 @@ public class AlertService {
     }
 
     @Transactional
-    public void save(Alert alert) {
-        alertRepository.save(alert);
+    public Alert save(Alert alert) {
+        return alertRepository.save(alert);
     }
 }

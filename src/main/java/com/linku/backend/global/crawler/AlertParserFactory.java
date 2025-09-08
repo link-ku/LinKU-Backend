@@ -1,6 +1,7 @@
 package com.linku.backend.global.crawler;
 
 import org.springframework.stereotype.Component;
+import com.linku.backend.domain.deapartment.DepartmentConfig;
 
 @Component
 public class AlertParserFactory {

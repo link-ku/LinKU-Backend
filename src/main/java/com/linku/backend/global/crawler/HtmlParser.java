@@ -1,6 +1,7 @@
 package com.linku.backend.global.crawler;
 
 import com.linku.backend.domain.alert.Alert;
+import com.linku.backend.domain.deapartment.DepartmentConfig;
 
 import java.io.IOException;
 import java.util.List;

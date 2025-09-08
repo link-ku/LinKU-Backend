@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import com.linku.backend.domain.deapartment.DepartmentConfig;
 
 public class RssParser implements AlertParser {
     @Override
