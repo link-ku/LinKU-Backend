@@ -34,7 +34,6 @@ public class RssParser implements AlertParser {
 
     @Override
     public List<Alert> parse(DepartmentConfig config) throws IOException {
-        // XML 파서 + UA + 타임아웃
         Document doc = Jsoup.connect(config.getUrl())
                 .userAgent("LinkU-Crawler/1.0 (+https://linku.app)")
                 .timeout(10_000)
@@ -42,7 +41,7 @@ public class RssParser implements AlertParser {
                 .get();
 
         Elements items = doc.select("channel > item");
-        String origin = originOf(config.getUrl()); // https://www.konkuk.ac.kr
+        String origin = originOf(config.getUrl());
 
         return items.stream().map(item -> {
             Alert a = new Alert();
@@ -58,6 +57,7 @@ public class RssParser implements AlertParser {
         }).collect(Collectors.toList());
     }
 
+    // Rss를 사용한 원본 링크를 받음
     private static String originOf(String url) {
         try {
             URL u = new URL(url);

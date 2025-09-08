@@ -34,7 +34,10 @@ public enum ResponseCode {
     TEMPLATE_ITEMS_OVERLAPPED(false, 3004, "템플릿 아이템들이 서로 겹칩니다."),
 
     // 4000 번대 : PostedTemplate 관련 요청 성공/실패
-    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다.");
+    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다."),
+
+    // 5000번대 : DepartmentConfig 관련 요청 성공/실패
+    DEPARTMENT_NOT_FOUND(false, 5001, "학과 혹은 공지사항 파트를 찾을 수 없습니다");
 
     private boolean success;
     private int code;
