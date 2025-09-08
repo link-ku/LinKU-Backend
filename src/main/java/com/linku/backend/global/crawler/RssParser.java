@@ -3,7 +3,6 @@ package com.linku.backend.global.crawler;
 import com.linku.backend.domain.alert.Alert;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import com.linku.backend.domain.deapartment.DepartmentConfig;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 
 public class RssParser implements AlertParser {
     @Override

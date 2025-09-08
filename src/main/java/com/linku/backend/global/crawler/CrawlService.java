@@ -1,8 +1,8 @@
 package com.linku.backend.global.crawler;
 
 import com.linku.backend.domain.alert.service.AlertService;
-import com.linku.backend.domain.deapartment.DepartmentConfig;
-import com.linku.backend.domain.deapartment.repository.DepartmentConfigRepository;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
+import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +80,7 @@ public class CrawlService {
                 .flatMap(response -> {
                     String lastModified = response.getHeaders().getFirst("Last-Modified");
 
-                    // 변경 없으면 skip
+                    // 변경 없으면 크로링 작동 안함
                     if (lastModified != null && lastModified.equals(config.getLastModified())) {
                         log.info("변경 없음: dept={}, url={}", config.getName(), config.getUrl());
                         return Mono.empty();
@@ -106,10 +106,10 @@ public class CrawlService {
                                             })
                             )
                             .flatMapMany(Flux::fromIterable)
-                            // isNew가 블로킹일 수 있으므로 안전하게 오프로딩
+                            // isNew가 블로킹(JPA)이므로 오프로딩
                                     .filterWhen(alert -> Mono.fromCallable(() -> alertService.isNew(alert))
                                     .subscribeOn(Schedulers.boundedElastic()))
-                            // save도 블로킹(JPA)일 수 있으므로 오프로딩
+                            // save도 블로킹(JPA)이므로 오프로딩
                             .flatMap(alert -> Mono.fromCallable(() -> alertService.save(alert))
                                     .subscribeOn(Schedulers.boundedElastic()))
                             .collectList()
