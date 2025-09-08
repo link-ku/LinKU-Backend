@@ -17,10 +17,12 @@ public class DepartmentConfig extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "department_config_id")
-    private int id;
+    private Long id;
 
     private String name;
     private String url;
+
+    @Column(name= "is_rss")
     private boolean isRss;
 
     @Column(name= "last_modified")

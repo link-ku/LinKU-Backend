@@ -20,31 +20,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CrawlService {
-    private final List<DepartmentConfig> configs;
     private final AlertService alertService;
     private final AlertParserFactory parserFactory;
     private final WebClient.Builder webClientBuilder;
     private final DepartmentConfigRepository departmentConfigRepository;
-
-    //    public void crawlAll() {
-//        for (DepartmentConfig config : configs) {
-//            try {
-//                // 팩토리를 통해 파서 객체를 가져옴
-//                AlertParser parser = parserFactory.getParser(config);
-//                List<Alert> parsed = parser.parse(config);
-//
-//                for (Alert alert : parsed) {
-//                    if (alertService.isNew(alert)) {
-//                        alertService.save(alert);
-//                    }
-//                }
-//            } catch (IOException e) {
-//                log.warn("크롤 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
-//            } catch (Exception e) {
-//                log.error("예상치 못한 오류: dept={}, url={}", config.getName(), config.getUrl(), e);
-//            }
-//        }
-//    }
 
     // 실행 직후 1회
     @PostConstruct
@@ -56,8 +35,6 @@ public class CrawlService {
     @Scheduled(cron = "0 0 3 * * *")
     public void crawlAll() {
         log.info("크롤링 시작!");
-
-        // JPA findAll() = Blocking → defer + boundedElastic
         Flux.defer(() -> Flux.fromIterable(departmentConfigRepository.findAll()))
                 .subscribeOn(Schedulers.boundedElastic())
                 .parallel()
@@ -72,50 +49,53 @@ public class CrawlService {
     }
 
     private Mono<Void> crawlAndSave(DepartmentConfig config) {
-        WebClient webClient = webClientBuilder.baseUrl(config.getUrl()).build();
+        WebClient client = webClientBuilder.build();
 
-        return webClient.head()
-                .retrieve()
-                .toBodilessEntity()
-                .flatMap(response -> {
-                    String lastModified = response.getHeaders().getFirst("Last-Modified");
-
-                    // 변경 없으면 크로링 작동 안함
-                    if (lastModified != null && lastModified.equals(config.getLastModified())) {
-                        log.info("변경 없음: dept={}, url={}", config.getName(), config.getUrl());
+        // 2) 조건부 GET으로 바꾸고 304 처리
+        return client.get()
+                .uri(config.getUrl())
+                .headers(h -> {
+                    // 서버에 따라 UA 없으면 4xx 주기도 하니 UA도 넣어주자(옵션)
+                    h.set("User-Agent", "LinkU-Crawler/1.0 (+https://linku.app)");
+                    if (config.getLastModified() != null && !config.getLastModified().isBlank()) {
+                        h.set("If-Modified-Since", config.getLastModified());
+                    }
+                })
+                .exchangeToMono(resp -> {
+                    if (resp.statusCode().value() == 304) {
+                        log.info("변경 없음(304): dept={}, url={}", config.getName(), config.getUrl());
                         return Mono.empty();
                     }
+                    if (resp.statusCode().isError()) {
+                        // 에러면 예외로 전파
+                        return resp.createException().flatMap(Mono::error);
+                    }
+                    return resp.toEntity(String.class);
+                })
+                .flatMap(entity -> {
+                    String lastModified = entity.getHeaders().getFirst("Last-Modified");
+                    String body = entity.getBody();
+                    if (body == null || body.isBlank()) return Mono.empty();
 
-                    // 실제 GET 요청
-                    return webClient.get()
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .onErrorResume(e -> {
-                                log.warn("크롤 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
-                                return Mono.empty();
+                    // 파싱은 블로킹 → 오프로딩
+                    return Mono.fromCallable(() -> {
+                                AlertParser parser = parserFactory.getParser(config);
+                                return parser.parse(config); // List<Alert>
                             })
-                            // 파싱 (IOException 등 체크예외 안전 처리 + 블로킹 오프로딩)
-                            .flatMap(html -> Mono.fromCallable(() -> {
-                                                AlertParser parser = parserFactory.getParser(config);
-                                                return parser.parse(config); // List<Alert>, throws IOException
-                                            })
-                                            .subscribeOn(Schedulers.boundedElastic())
-                                            .onErrorResume(IOException.class, e -> {
-                                                log.warn("파싱 실패(체크예외 처리): dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
-                                                return Mono.just(List.of());
-                                            })
-                            )
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .onErrorResume(IOException.class, e -> {
+                                log.warn("파싱 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
+                                return Mono.just(List.of());
+                            })
                             .flatMapMany(Flux::fromIterable)
-                            // isNew가 블로킹(JPA)이므로 오프로딩
-                                    .filterWhen(alert -> Mono.fromCallable(() -> alertService.isNew(alert))
+                            .filterWhen(a -> Mono.fromCallable(() -> alertService.isNew(a))
                                     .subscribeOn(Schedulers.boundedElastic()))
-                            // save도 블로킹(JPA)이므로 오프로딩
-                            .flatMap(alert -> Mono.fromCallable(() -> alertService.save(alert))
+                            .flatMap(a -> Mono.fromCallable(() -> alertService.saveWithDept(a, config.getId()))
                                     .subscribeOn(Schedulers.boundedElastic()))
                             .collectList()
-                            .flatMap(savedAlerts -> {
-                                log.info("새로운 알림 {}개 저장 완료: dept={}", savedAlerts.size(), config.getName());
-                                // lastModified 업데이트 저장 (JPA save 블로킹 → 오프로딩)
+                            .flatMap(saved -> {
+                                log.info("새 알림 {}개 저장: dept={}", saved.size(), config.getName());
+                                // 각 학과마다 마지막 수정 날짜 변경
                                 return Mono.fromCallable(() -> {
                                             config.setLastModified(lastModified);
                                             return departmentConfigRepository.save(config);
@@ -125,7 +105,7 @@ public class CrawlService {
                             });
                 })
                 .onErrorResume(e -> {
-                    log.warn("변경 확인 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
+                    log.warn("크롤 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
                     return Mono.empty();
                 });
     }

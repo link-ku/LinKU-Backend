@@ -1,6 +1,7 @@
 package com.linku.backend.domain.alert;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.page.Page;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,11 +17,12 @@ public class Alert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long alertId;
+    @Column(name= "alert_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "page_id")
-    private Page page;
+    @JoinColumn(name = "department_config_id")
+    private DepartmentConfig departmentConfig;
 
     private String url;
 

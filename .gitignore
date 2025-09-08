@@ -37,4 +37,7 @@ out/
 .vscode/
 
 ### .sql file ###
-.sql
+*.sql
+
+### .yml file ###
+*.yml
