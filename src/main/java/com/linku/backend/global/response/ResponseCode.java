@@ -37,7 +37,13 @@ public enum ResponseCode {
     POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다."),
 
     // 5000번대 : DepartmentConfig 관련 요청 성공/실패
-    DEPARTMENT_NOT_FOUND(false, 5001, "학과 혹은 공지사항 파트를 찾을 수 없습니다");
+    DEPARTMENT_NOT_FOUND(false, 5001, "학과 혹은 공지사항 파트를 찾을 수 없습니다"),
+
+    // 6000대 : Crawling 관련 요청 성공/실패
+    CRAWLING_FAILED(false, 6000, "크롤링을 실패하였습니다."),
+    CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다.");
+
+
 
     private boolean success;
     private int code;

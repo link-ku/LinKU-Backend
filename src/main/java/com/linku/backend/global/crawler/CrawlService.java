@@ -3,6 +3,8 @@ package com.linku.backend.global.crawler;
 import com.linku.backend.domain.alert.service.AlertService;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
+import com.linku.backend.global.exception.LinkuException;
+import com.linku.backend.global.response.ResponseCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +57,6 @@ public class CrawlService {
         return client.get()
                 .uri(config.getUrl())
                 .headers(h -> {
-                    // 서버에 따라 UA 없으면 4xx 주기도 하니 UA도 넣어주자(옵션)
                     h.set("User-Agent", "LinkU-Crawler/1.0 (+https://linku.app)");
                     if (config.getLastModified() != null && !config.getLastModified().isBlank()) {
                         h.set("If-Modified-Since", config.getLastModified());
@@ -67,8 +68,9 @@ public class CrawlService {
                         return Mono.empty();
                     }
                     if (resp.statusCode().isError()) {
-                        // 에러면 예외로 전파
-                        return resp.createException().flatMap(Mono::error);
+                        return resp.bodyToMono(String.class)
+                                .defaultIfEmpty("")
+                                .flatMap(body -> Mono.error(LinkuException.of(ResponseCode.CRAWLING_FAILED)));
                     }
                     return resp.toEntity(String.class);
                 })
@@ -77,16 +79,12 @@ public class CrawlService {
                     String body = entity.getBody();
                     if (body == null || body.isBlank()) return Mono.empty();
 
-                    // 파싱은 블로킹 → 오프로딩
                     return Mono.fromCallable(() -> {
                                 AlertParser parser = parserFactory.getParser(config);
-                                return parser.parse(config); // List<Alert>
+                                return parser.parse(config);
                             })
                             .subscribeOn(Schedulers.boundedElastic())
-                            .onErrorResume(IOException.class, e -> {
-                                log.warn("파싱 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
-                                return Mono.just(List.of());
-                            })
+                            .onErrorMap(IOException.class, e -> LinkuException.of(ResponseCode.CRAWLING_PARSING_FAILED))
                             .flatMapMany(Flux::fromIterable)
                             .filterWhen(a -> Mono.fromCallable(() -> alertService.isNew(a))
                                     .subscribeOn(Schedulers.boundedElastic()))
@@ -104,8 +102,8 @@ public class CrawlService {
                                         .then();
                             });
                 })
-                .onErrorResume(e -> {
-                    log.warn("크롤 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
+                .onErrorResume(LinkuException.class, e -> {
+                    log.warn("크롤링 실패: dept={}, url={}, msg={}", config.getName(), config.getUrl(), e.getMessage());
                     return Mono.empty();
                 });
     }
