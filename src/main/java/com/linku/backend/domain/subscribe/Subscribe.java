@@ -1,6 +1,7 @@
 package com.linku.backend.domain.subscribe;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.page.Page;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
@@ -20,8 +21,8 @@ public class Subscribe extends BaseEntity {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "target_id")
-    private Page target;
+    @JoinColumn(name = "department_conifg_id")
+    private DepartmentConfig departmentConfig;
 
     private String customName;
 }
