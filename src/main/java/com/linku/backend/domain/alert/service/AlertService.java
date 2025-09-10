@@ -1,6 +1,7 @@
 package com.linku.backend.domain.alert.service;
 
 import com.linku.backend.domain.alert.Alert;
+import com.linku.backend.domain.alert.dto.response.AlertListResponse;
 import com.linku.backend.domain.alert.repository.AlertRepository;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,5 +32,11 @@ public class AlertService {
                         .orElseThrow( () -> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
         alert.setDepartmentConfig(departmentConfig);
         return alertRepository.save(alert);
+    }
+
+    @Transactional(readOnly = true)
+    public AlertListResponse getMyAlerts(){
+        List<Alert> alerts = alertRepository.findAll();
+
     }
 }
