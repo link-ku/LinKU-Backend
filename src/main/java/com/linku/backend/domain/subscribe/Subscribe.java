@@ -17,11 +17,13 @@ import lombok.*;
 public class Subscribe extends BaseEntity {
 
     @Id
+    @Column(name = "subscribe_id")
+    private Long id;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Id
     @ManyToOne
     @JoinColumn(name = "department_conifg_id")
     private DepartmentConfig departmentConfig;

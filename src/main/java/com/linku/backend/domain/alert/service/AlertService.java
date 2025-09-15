@@ -76,4 +76,8 @@ public class AlertService {
                 .build();
         subscribeRepository.save(subscribe);
     }
+
+    public void deleteSubscription(Long userId, Long departmentConfigId) {
+        subscribeRepository.deleteByUser_IdAndDepartmentConfig_Id(userId, departmentConfigId);
+    }
 }

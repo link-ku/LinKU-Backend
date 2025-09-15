@@ -49,7 +49,7 @@ public class AlertController {
 
     @DeleteMapping("/{departmentId}")
     public BaseResponse<Void> deleteSubscription(@PathVariable Long departmentId){
-        alertService.deleteSubscription(departmentId);
+        alertService.deleteSubscription(1L, departmentId);
         return BaseResponse.of(ResponseCode.SUCCESS, null);
     }
 }
