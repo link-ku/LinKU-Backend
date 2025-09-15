@@ -3,6 +3,7 @@ package com.linku.backend.domain.alert.controller;
 import com.linku.backend.domain.alert.dto.response.AlertListResponse;
 import com.linku.backend.domain.alert.dto.response.AlertResponse;
 import com.linku.backend.domain.alert.service.AlertService;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.template.dto.request.TemplateCreateRequest;
 import com.linku.backend.domain.template.dto.response.TemplateResponse;
 import com.linku.backend.global.response.BaseResponse;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AlertController {
 
     private final AlertService alertService;
+    private final DepartmentConfigService departmentConfigService;
 
     @GetMapping("/my")
     public BaseResponse<AlertListResponse> getMyAlerts(
@@ -30,21 +32,20 @@ public class AlertController {
         );
     }
 
-    @PostMapping("/subscribe")
-    public BaseResponse<Void> subscribeDepartment(){
-        alertService.subscribeDepartment();
+//    @GetMapping("/subscription")
+//    public BaseResponse<AlertListResponse> getSubscriptionAlerts(
+//            departmentConfigService
+//    )
+
+    @PostMapping("/{departmentId}")
+    public BaseResponse<Void> subscribeDepartment(@PathVariable Long departmentId){
+        alertService.subscribeDepartment(departmentId);
         return BaseResponse.of(ResponseCode.SUCCESS, null);
     }
 
     @DeleteMapping("/{departmentId}")
-    public BaseResponse<Void> deleteSubscription(){
-        alertService.deleteSubscription();
-        return BaseResponse.of(ResponseCode.SUCCESS, null);
-    }
-
-    @PatchMapping("/{departmentId}")
-    public BaseResponse<Void> updateSubscription(){
-        alertService.updateSubscription();
+    public BaseResponse<Void> deleteSubscription(@PathVariable Long departmentId){
+        alertService.deleteSubscription(departmentId);
         return BaseResponse.of(ResponseCode.SUCCESS, null);
     }
 }
