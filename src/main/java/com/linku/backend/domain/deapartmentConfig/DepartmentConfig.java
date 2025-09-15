@@ -2,15 +2,15 @@ package com.linku.backend.domain.deapartmentConfig;
 
 import com.linku.backend.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 @Entity
 @Table(name = "department_configs")
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Setter
 public class DepartmentConfig extends BaseEntity {
 

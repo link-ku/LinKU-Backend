@@ -20,11 +20,11 @@ public class Subscribe extends BaseEntity {
     @Column(name = "subscribe_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_conifg_id")
     private DepartmentConfig departmentConfig;
 

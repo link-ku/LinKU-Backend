@@ -64,6 +64,7 @@ public class AlertService {
         return AlertListResponse.from(alertResponses);
     }
 
+    @Transactional
     public void subscribeDepartment(Long userId, Long departmentConfigId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
@@ -77,6 +78,7 @@ public class AlertService {
         subscribeRepository.save(subscribe);
     }
 
+    @Transactional
     public void deleteSubscription(Long userId, Long departmentConfigId) {
         subscribeRepository.deleteByUser_IdAndDepartmentConfig_Id(userId, departmentConfigId);
     }

@@ -9,6 +9,7 @@ import com.linku.backend.domain.subscribe.repository.SubscribeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class DepartmentConfigService {
     private DepartmentConfigRepository departmentConfigRepository;
     private SubscribeRepository subscribeRepository;
 
+    @Transactional(readOnly = true)
     public DepartmentConfigListResponse getAllDepartmentConfigs() {
         List<DepartmentConfig> departmentConfigList = departmentConfigRepository.findAll();
 
@@ -29,6 +31,7 @@ public class DepartmentConfigService {
         return DepartmentConfigListResponse.from(list);
     }
 
+    @Transactional(readOnly = true)
     public DepartmentConfigListResponse getAllMyDepartmentConfigs(Long userId) {
         List<Subscribe> subscribeList = subscribeRepository.findByUserId(1L);
 
