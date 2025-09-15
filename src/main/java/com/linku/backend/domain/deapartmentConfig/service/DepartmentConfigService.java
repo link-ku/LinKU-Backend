@@ -1,9 +1,16 @@
 package com.linku.backend.domain.deapartmentConfig.service;
 
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
+import com.linku.backend.domain.deapartmentConfig.dto.response.DepartmentConfigListResponse;
+import com.linku.backend.domain.deapartmentConfig.dto.response.DepartmentConfigResponse;
 import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
+import com.linku.backend.domain.subscribe.Subscribe;
+import com.linku.backend.domain.subscribe.repository.SubscribeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -11,8 +18,24 @@ import org.springframework.stereotype.Service;
 public class DepartmentConfigService {
 
     private DepartmentConfigRepository departmentConfigRepository;
+    private SubscribeRepository subscribeRepository;
 
+    public DepartmentConfigListResponse getAllDepartmentConfigs() {
+        List<DepartmentConfig> departmentConfigList = departmentConfigRepository.findAll();
 
-    public
+        List<DepartmentConfigResponse> list = departmentConfigList.stream()
+                .map(department -> DepartmentConfigResponse.of(department.getId(), department.getName()))
+                .toList();
+        return DepartmentConfigListResponse.from(list);
+    }
+
+    public DepartmentConfigListResponse getAllMyDepartmentConfigs(Long userId) {
+        List<Subscribe> subscribeList = subscribeRepository.findByUserId(1L);
+
+        List<DepartmentConfigResponse> list = subscribeList.stream()
+                .map(subscribe -> DepartmentConfigResponse.of(subscribe.getDepartmentConfig().getId(), subscribe.getDepartmentConfig().getName()))
+                .toList();
+        return DepartmentConfigListResponse.from(list);
+    }
 
 }
