@@ -25,7 +25,7 @@ public class AlertController {
 
     @GetMapping("/my")
     public BaseResponse<AlertListResponse> getMyAlerts() {
-        AlertListResponse response = alertService.getMyAlerts();
+        AlertListResponse response = alertService.getMyAlerts(1L);
         return BaseResponse.of(ResponseCode.SUCCESS, response);
     }
 

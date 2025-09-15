@@ -53,6 +53,9 @@ public class RssParser implements AlertParser {
             String pub = item.selectFirst("pubDate") != null ? item.selectFirst("pubDate").text() : "";
             a.setPostTime(parsePubDate(pub));   // 견고한 파서
 
+            String content = item.selectFirst("description") != null ? item.selectFirst("description").text() : "";
+            a.setContent(content);
+
             return a;
         }).collect(Collectors.toList());
     }

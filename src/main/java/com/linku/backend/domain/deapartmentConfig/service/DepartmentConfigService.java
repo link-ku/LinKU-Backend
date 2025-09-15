@@ -6,6 +6,10 @@ import com.linku.backend.domain.deapartmentConfig.dto.response.DepartmentConfigR
 import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
 import com.linku.backend.domain.subscribe.Subscribe;
 import com.linku.backend.domain.subscribe.repository.SubscribeRepository;
+import com.linku.backend.domain.user.User;
+import com.linku.backend.domain.user.repository.UserRepository;
+import com.linku.backend.global.exception.LinkuException;
+import com.linku.backend.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ public class DepartmentConfigService {
 
     private DepartmentConfigRepository departmentConfigRepository;
     private SubscribeRepository subscribeRepository;
+    private UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public DepartmentConfigListResponse getAllDepartmentConfigs() {
@@ -33,7 +38,10 @@ public class DepartmentConfigService {
 
     @Transactional(readOnly = true)
     public DepartmentConfigListResponse getAllMyDepartmentConfigs(Long userId) {
-        List<Subscribe> subscribeList = subscribeRepository.findByUserId(1L);
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+
+        List<Subscribe> subscribeList = subscribeRepository.findByUserId(userId);
 
         List<DepartmentConfigResponse> list = subscribeList.stream()
                 .map(subscribe -> DepartmentConfigResponse.of(subscribe.getDepartmentConfig().getId(), subscribe.getDepartmentConfig().getName()))

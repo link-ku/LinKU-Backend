@@ -42,8 +42,10 @@ public class AlertService {
     }
 
     @Transactional(readOnly = true)
-    public AlertListResponse getMyAlerts(){
-        Long userId = 1L;
+    public AlertListResponse getMyAlerts(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+
         // 1) 구독 정보 조회
         List<Subscribe> subscribes = subscribeRepository.findByUserId(userId);
 
@@ -80,6 +82,11 @@ public class AlertService {
 
     @Transactional
     public void deleteSubscription(Long userId, Long departmentConfigId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+        DepartmentConfig departmentConfig = departmentConfigRepository.findById(departmentConfigId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
+
         subscribeRepository.deleteByUser_IdAndDepartmentConfig_Id(userId, departmentConfigId);
     }
 }
