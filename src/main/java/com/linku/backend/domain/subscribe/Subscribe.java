@@ -5,13 +5,15 @@ import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.page.Page;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "subscribes")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Subscribe extends BaseEntity {
 
     @Id

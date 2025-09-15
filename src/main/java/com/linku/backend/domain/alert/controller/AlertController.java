@@ -4,6 +4,7 @@ import com.linku.backend.domain.alert.dto.response.AlertListResponse;
 import com.linku.backend.domain.alert.dto.response.AlertResponse;
 import com.linku.backend.domain.alert.service.AlertService;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
+import com.linku.backend.domain.deapartmentConfig.dto.response.DepartmentConfigListResponse;
 import com.linku.backend.domain.deapartmentConfig.service.DepartmentConfigService;
 import com.linku.backend.domain.template.dto.request.TemplateCreateRequest;
 import com.linku.backend.domain.template.dto.response.TemplateResponse;
@@ -23,24 +24,26 @@ public class AlertController {
     private final DepartmentConfigService departmentConfigService;
 
     @GetMapping("/my")
-    public BaseResponse<AlertListResponse> getMyAlerts(
-    ) {
+    public BaseResponse<AlertListResponse> getMyAlerts() {
         AlertListResponse response = alertService.getMyAlerts();
-
-        return BaseResponse.of(
-                ResponseCode.SUCCESS,
-                response
-        );
+        return BaseResponse.of(ResponseCode.SUCCESS, response);
     }
 
-//    @GetMapping("/subscription")
-//    public BaseResponse<AlertListResponse> getSubscriptionAlerts(
-//            departmentConfigService
-//    )
+    @GetMapping("/subscription")
+    public BaseResponse<DepartmentConfigListResponse> getAllSubscription(){
+        DepartmentConfigListResponse response = departmentConfigService.getAllDepartmentConfigs();
+        return BaseResponse.of(ResponseCode.SUCCESS, response);
+    }
+
+    @GetMapping("/subscription/my")
+    public BaseResponse<DepartmentConfigListResponse> getAllMySubscription(){
+        DepartmentConfigListResponse response = departmentConfigService.getAllMyDepartmentConfigs(1L);
+        return BaseResponse.of(ResponseCode.SUCCESS, response);
+    }
 
     @PostMapping("/{departmentId}")
     public BaseResponse<Void> subscribeDepartment(@PathVariable Long departmentId){
-        alertService.subscribeDepartment(departmentId);
+        alertService.subscribeDepartment(1L, departmentId);
         return BaseResponse.of(ResponseCode.SUCCESS, null);
     }
 

@@ -8,6 +8,8 @@ import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.deapartmentConfig.repository.DepartmentConfigRepository;
 import com.linku.backend.domain.subscribe.Subscribe;
 import com.linku.backend.domain.subscribe.repository.SubscribeRepository;
+import com.linku.backend.domain.user.User;
+import com.linku.backend.domain.user.repository.UserRepository;
 import com.linku.backend.global.exception.LinkuException;
 import com.linku.backend.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class AlertService {
     private final AlertRepository alertRepository;
     private final DepartmentConfigRepository departmentConfigRepository;
     private final SubscribeRepository subscribeRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public boolean isNew(Alert alert) {
@@ -59,5 +62,18 @@ public class AlertService {
 
         // 5) 최종 Response 반환
         return AlertListResponse.from(alertResponses);
+    }
+
+    public void subscribeDepartment(Long userId, Long departmentConfigId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+        DepartmentConfig departmentConfig = departmentConfigRepository.findById(departmentConfigId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+        Subscribe subscribe = Subscribe.builder()
+                .user(user)
+                .departmentConfig(departmentConfig)
+                .build();
+        subscribeRepository.save(subscribe);
     }
 }
