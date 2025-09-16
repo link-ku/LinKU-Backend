@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,10 +94,7 @@ public class TemplateService {
         templateValidator.validateTemplateItemsForUpdate(request.getHeight(), request.getItems());
 
         updateTemplateBasicInfo(template, request);
-        updateTemplateItems(template, request);
-        
-        List<TemplateItem> activeItems = templateItemRepository.findAllByTemplate_TemplateIdAndStatus(templateId, Status.ACTIVE);
-        template.setItems(activeItems);
+        updateTemplateItems(template, request.getItems());
 
         return convertToTemplateResponse(template);
     }
@@ -152,7 +149,7 @@ public class TemplateService {
     }
 
     private Template validateAndGetTemplate(Long templateId, Long userId) {
-        return templateRepository.findByTemplateIdAndOwner_UserIdAndStatus(templateId, userId, Status.ACTIVE)
+        return templateRepository.findTemplateWithItemsByIdAndOwnerIdAndStatus(templateId, userId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.TEMPLATE_NOT_FOUND));
     }
 
@@ -185,64 +182,40 @@ public class TemplateService {
         template.setHeight(request.getHeight());
     }
 
-    private void updateTemplateItems(Template template, TemplateUpdateRequest request) {
-        List<TemplateItem> existingItems = templateItemRepository.findAllByTemplate_TemplateIdAndStatus(
-                template.getTemplateId(), Status.ACTIVE);
+    private void updateTemplateItems(Template template, List<TemplateItemUpdateRequest> requestItems) {
+        Map<Long, TemplateItemUpdateRequest> itemRequestsMap = requestItems.stream()
+                .filter(item -> item.getTemplateItemId() != null)
+                .collect(Collectors.toMap(TemplateItemUpdateRequest::getTemplateItemId, item -> item));
 
-        List<Long> requestIds = request.getItems().stream()
-                .map(TemplateItemUpdateRequest::getTemplateItemId)
-                .filter(Objects::nonNull)
-                .toList();
+        template.getItems().removeIf(item -> !itemRequestsMap.containsKey(item.getTemplateItemId()));
 
-        List<TemplateItem> itemsToDelete = existingItems.stream()
-                .filter(item -> !requestIds.contains(item.getTemplateItemId()))
-                .collect(Collectors.toList());
-        
-        templateItemRepository.deleteAll(itemsToDelete);
+        template.getItems().forEach(item -> {
+            TemplateItemUpdateRequest request = itemRequestsMap.get(item.getTemplateItemId());
+            item.setName(request.getName());
+            item.setSiteUrl(request.getSiteUrl());
+            item.setPosition(templateItemPositionRequestMapper.toEntity(request.getPosition()));
+            item.setSize(templateItemSizeRequestMapper.toEntity(request.getSize()));
+            item.setIcon(templateItemIconRequestMapper.toEntity(request.getIcon()));
+        });
 
-        for (TemplateItemUpdateRequest itemReq : request.getItems()) {
-            if (itemReq.getTemplateItemId() != null) {
-                updateExistingTemplateItem(existingItems, itemReq);
-            } else {
-                TemplateItem newItem = createNewTemplateItem(template, itemReq);
-                template.getItems().add(newItem);
-            }
-        }
-    }
-
-    private void updateExistingTemplateItem(List<TemplateItem> existingItems, TemplateItemUpdateRequest itemReq) {
-        TemplateItem item = existingItems.stream()
-                .filter(e -> e.getTemplateItemId().equals(itemReq.getTemplateItemId()))
-                .findFirst()
-                .orElseThrow(() -> LinkuException.of(ResponseCode.TEMPLATE_ITEM_NOT_FOUND));
-
-        item.setName(itemReq.getName());
-        item.setSiteUrl(itemReq.getSiteUrl());
-        item.setPosition(templateItemPositionRequestMapper.toEntity(itemReq.getPosition()));
-        item.setSize(templateItemSizeRequestMapper.toEntity(itemReq.getSize()));
-        item.setIcon(templateItemIconRequestMapper.toEntity(itemReq.getIcon()));
-        item.setStatus(Status.ACTIVE);
-    }
-
-    private TemplateItem createNewTemplateItem(Template template, TemplateItemUpdateRequest itemReq) {
-        return TemplateItem.builder()
-                .template(template)
-                .name(itemReq.getName())
-                .siteUrl(itemReq.getSiteUrl())
-                .position(templateItemPositionRequestMapper.toEntity(itemReq.getPosition()))
-                .size(templateItemSizeRequestMapper.toEntity(itemReq.getSize()))
-                .icon(templateItemIconRequestMapper.toEntity(itemReq.getIcon()))
-                .status(Status.ACTIVE)
-                .build();
+        requestItems.stream()
+                .filter(item -> item.getTemplateItemId() == null)
+                .forEach(itemReq -> template.getItems().add(TemplateItem.builder()
+                        .template(template)
+                        .name(itemReq.getName())
+                        .siteUrl(itemReq.getSiteUrl())
+                        .position(templateItemPositionRequestMapper.toEntity(itemReq.getPosition()))
+                        .size(templateItemSizeRequestMapper.toEntity(itemReq.getSize()))
+                        .icon(templateItemIconRequestMapper.toEntity(itemReq.getIcon()))
+                        .status(Status.ACTIVE)
+                        .build()));
     }
 
     private void softDeleteTemplate(Template template) {
         template.setStatus(Status.DELETED);
         template.setDeletedAt(LocalDateTime.now());
 
-        List<TemplateItem> items = templateItemRepository.findAllByTemplate_TemplateIdAndStatus(
-                template.getTemplateId(), Status.ACTIVE);
-        items.forEach(item -> {
+        template.getItems().forEach(item -> {
             item.setStatus(Status.DELETED);
             item.setDeletedAt(LocalDateTime.now());
         });
