@@ -149,7 +149,7 @@ public class TemplateService {
     }
 
     private Template validateAndGetTemplate(Long templateId, Long userId) {
-        return templateRepository.findByTemplateIdAndOwner_UserIdAndStatus(templateId, userId, Status.ACTIVE)
+        return templateRepository.findTemplateWithItemsByIdAndOwnerIdAndStatus(templateId, userId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.TEMPLATE_NOT_FOUND));
     }
 
