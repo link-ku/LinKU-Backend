@@ -54,6 +54,9 @@ dependencies {
 
 	// Jsoup
 	implementation 'org.jsoup:jsoup:1.17.2'
+
+	// Test
+	testImplementation 'io.projectreactor:reactor-test'
 }
 
 tasks.named('test') {

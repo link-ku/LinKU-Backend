@@ -10,4 +10,8 @@ SET FOREIGN_KEY_CHECKS = 1;
 insert into department_configs(department_config_id, name, url, is_rss, last_modified, created_at, updated_at, status)
 values (1, '학사', 'https://www.konkuk.ac.kr/bbs/konkuk/234/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'),
        (2, '장학', 'https://www.konkuk.ac.kr/bbs/konkuk/235/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'),
-       (3, '국제', 'https://www.konkuk.ac.kr/bbs/konkuk/237/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE');
+       (3, '국제', 'https://www.konkuk.ac.kr/bbs/konkuk/237/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'),
+       (4, '학생', 'https://www.konkuk.ac.kr/bbs/konkuk/238/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'),
+       (5, '일반', 'https://www.konkuk.ac.kr/bbs/konkuk/240/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'),
+       (6, '채용', 'https://www.konkuk.ac.kr/bbs/konkuk/243/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE'),
+       (7, '에너지 절약', 'https://www.konkuk.ac.kr/bbs/konkuk/242/rssList.do?row=50', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE');

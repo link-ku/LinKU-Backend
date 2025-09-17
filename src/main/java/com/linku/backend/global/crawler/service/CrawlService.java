@@ -51,7 +51,7 @@ public class CrawlService {
                 );
     }
 
-    private Mono<Void> crawlAndSave(DepartmentConfig config) {
+    public Mono<Void> crawlAndSave(DepartmentConfig config) {
         WebClient client = webClientBuilder.build();
 
         // 2) 조건부 GET으로 바꾸고 304 처리
