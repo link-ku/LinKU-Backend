@@ -65,6 +65,7 @@ public class CrawlService {
                 })
                 .exchangeToMono(resp -> {
                     if (resp.statusCode().value() == 304) {
+
                         log.info("변경 없음(304): dept={}, url={}", config.getName(), config.getUrl());
                         return Mono.empty();
                     }

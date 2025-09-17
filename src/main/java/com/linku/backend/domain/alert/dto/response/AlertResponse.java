@@ -1,11 +1,8 @@
 package com.linku.backend.domain.alert.dto.response;
 
 import com.linku.backend.domain.alert.Alert;
-import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 

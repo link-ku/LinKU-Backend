@@ -4,10 +4,7 @@ import com.linku.backend.domain.common.BaseEntity;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.page.Page;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Alert extends BaseEntity {
 
     @Id

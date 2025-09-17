@@ -57,12 +57,9 @@ public class AlertService {
         // 3) 해당 departmentConfigId에 속하는 알림들 조회
         List<Alert> alerts = alertRepository.findByDepartmentConfigIdIn(departmentConfigIds);
 
-        // 4) Alert → AlertResponse 변환
         List<AlertResponse> alertResponses = alerts.stream()
-                .map(AlertResponse::from) // 정적 팩토리 메서드가 있다고 가정
+                .map(AlertResponse::from)
                 .toList();
-
-        // 5) 최종 Response 반환
         return AlertListResponse.from(alertResponses);
     }
 

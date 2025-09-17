@@ -1,12 +1,14 @@
 package com.linku.backend.domain.deapartmentConfig.dto.response;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 @Builder
 public class DepartmentConfigListResponse {
-    List<DepartmentConfigResponse> departmentConfigList;
+    private List<DepartmentConfigResponse> departmentConfigList;
 
     public static DepartmentConfigListResponse from(List<DepartmentConfigResponse> list) {
         return DepartmentConfigListResponse.builder()

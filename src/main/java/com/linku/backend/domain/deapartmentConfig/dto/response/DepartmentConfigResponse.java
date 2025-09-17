@@ -1,14 +1,15 @@
 package com.linku.backend.domain.deapartmentConfig.dto.response;
 
-import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 public class DepartmentConfigResponse {
-    Long departmentConfigId;
-    String departmentConfigName;
+    private Long departmentConfigId;
+    private String departmentConfigName;
 
-    public static DepartmentConfigResponse of(Long departmentConfigId,  String departmentConfigName){
+    public static DepartmentConfigResponse of(Long departmentConfigId, String departmentConfigName){
         return DepartmentConfigResponse.builder()
                 .departmentConfigId(departmentConfigId)
                 .departmentConfigName(departmentConfigName)

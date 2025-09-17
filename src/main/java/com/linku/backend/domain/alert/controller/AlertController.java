@@ -1,17 +1,11 @@
 package com.linku.backend.domain.alert.controller;
 
 import com.linku.backend.domain.alert.dto.response.AlertListResponse;
-import com.linku.backend.domain.alert.dto.response.AlertResponse;
 import com.linku.backend.domain.alert.service.AlertService;
-import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.deapartmentConfig.dto.response.DepartmentConfigListResponse;
 import com.linku.backend.domain.deapartmentConfig.service.DepartmentConfigService;
-import com.linku.backend.domain.template.dto.request.TemplateCreateRequest;
-import com.linku.backend.domain.template.dto.response.TemplateResponse;
 import com.linku.backend.global.response.BaseResponse;
 import com.linku.backend.global.response.ResponseCode;
-import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

@@ -22,9 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartmentConfigService {
 
-    private DepartmentConfigRepository departmentConfigRepository;
-    private SubscribeRepository subscribeRepository;
-    private UserRepository userRepository;
+    private final DepartmentConfigRepository departmentConfigRepository;
+    private final SubscribeRepository subscribeRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public DepartmentConfigListResponse getAllDepartmentConfigs() {
