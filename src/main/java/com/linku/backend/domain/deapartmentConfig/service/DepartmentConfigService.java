@@ -41,7 +41,7 @@ public class DepartmentConfigService {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
-        List<Subscribe> subscribeList = subscribeRepository.findByUserId(userId);
+        List<Subscribe> subscribeList = subscribeRepository.findByUser_UserId(userId);
 
         List<DepartmentConfigResponse> list = subscribeList.stream()
                 .map(subscribe -> DepartmentConfigResponse.of(subscribe.getDepartmentConfig().getId(), subscribe.getDepartmentConfig().getName()))
@@ -70,6 +70,6 @@ public class DepartmentConfigService {
         DepartmentConfig departmentConfig = departmentConfigRepository.findById(departmentConfigId)
                 .orElseThrow(()-> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
 
-        subscribeRepository.deleteByUser_IdAndDepartmentConfig_Id(userId, departmentConfigId);
+        subscribeRepository.deleteByUser_UserIdAndDepartmentConfig_Id(userId, departmentConfigId);
     }
 }

@@ -70,7 +70,7 @@ class DepartmentConfigServiceTest {
     void getAllMyDepartmentConfigs_returnsSubscribedConfigsSuccessfully() {
         // given
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
-        when(subscribeRepository.findByUserId(any(Long.class))).thenReturn(List.of(subscribe));
+        when(subscribeRepository.findByUser_UserId(any(Long.class))).thenReturn(List.of(subscribe));
 
         // when
         DepartmentConfigListResponse response = departmentConfigService.getAllMyDepartmentConfigs(1L);
@@ -79,7 +79,7 @@ class DepartmentConfigServiceTest {
         assertThat(response.getDepartmentConfigList()).hasSize(1);
         assertThat(response.getDepartmentConfigList().get(0).getDepartmentConfigName()).isEqualTo("학사");
         verify(userRepository).findById(1L);
-        verify(subscribeRepository).findByUserId(1L);
+        verify(subscribeRepository).findByUser_UserId(1L);
     }
 
     @Test
@@ -119,7 +119,7 @@ class DepartmentConfigServiceTest {
         // given
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
         when(departmentConfigRepository.findById(any(Long.class))).thenReturn(Optional.of(departmentConfig));
-        doNothing().when(subscribeRepository).deleteByUser_IdAndDepartmentConfig_Id(any(Long.class), any(Long.class));
+        doNothing().when(subscribeRepository).deleteByUser_UserIdAndDepartmentConfig_Id(any(Long.class), any(Long.class));
 
         // when
         departmentConfigService.deleteSubscription(1L, 1L);
@@ -127,6 +127,6 @@ class DepartmentConfigServiceTest {
         // then
         verify(userRepository).findById(1L);
         verify(departmentConfigRepository).findById(1L);
-        verify(subscribeRepository).deleteByUser_IdAndDepartmentConfig_Id(1L, 1L);
+        verify(subscribeRepository).deleteByUser_UserIdAndDepartmentConfig_Id(1L, 1L);
     }
 }

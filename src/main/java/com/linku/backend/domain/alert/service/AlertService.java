@@ -47,7 +47,7 @@ public class AlertService {
                 .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
         // 1) 구독 정보 조회
-        List<Subscribe> subscribes = subscribeRepository.findByUserId(userId);
+        List<Subscribe> subscribes = subscribeRepository.findByUser_UserId(userId);
 
         // 2) 구독한 departmentConfigId 리스트 뽑기
         List<Long> departmentConfigIds = subscribes.stream()

@@ -119,7 +119,7 @@ class AlertServiceTest {
     void getMyAlerts_returnsAlertsSuccessfully() {
         // given
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
-        when(subscribeRepository.findByUserId(any(Long.class))).thenReturn(List.of(subscribe));
+        when(subscribeRepository.findByUser_UserId(any(Long.class))).thenReturn(List.of(subscribe));
         when(alertRepository.findByDepartmentConfigIdIn(anyList())).thenReturn(List.of(alert));
 
         // when
@@ -131,7 +131,7 @@ class AlertServiceTest {
         assertThat(alertResponse.getUrl()).isEqualTo(alert.getUrl());
 
         verify(userRepository).findById(1L);
-        verify(subscribeRepository).findByUserId(1L);
+        verify(subscribeRepository).findByUser_UserId(1L);
         verify(alertRepository).findByDepartmentConfigIdIn(List.of(1L));
     }
 
@@ -144,7 +144,7 @@ class AlertServiceTest {
         // when & then
         assertThrows(LinkuException.class, () -> alertService.getMyAlerts(1L));
         verify(userRepository).findById(1L);
-        verify(subscribeRepository, never()).findByUserId(any(Long.class));
+        verify(subscribeRepository, never()).findByUser_UserId(any(Long.class));
     }
 
     @Test
@@ -152,7 +152,7 @@ class AlertServiceTest {
     void getMyAlerts_returnsEmptyList_whenNoSubscriptions() {
         // given
         when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
-        when(subscribeRepository.findByUserId(any(Long.class))).thenReturn(Collections.emptyList());
+        when(subscribeRepository.findByUser_UserId(any(Long.class))).thenReturn(Collections.emptyList());
 
         // when
         AlertListResponse response = alertService.getMyAlerts(1L);
@@ -161,7 +161,7 @@ class AlertServiceTest {
         assertThat(response.getAlertResponseList()).isEmpty();
 
         verify(userRepository).findById(1L);
-        verify(subscribeRepository).findByUserId(1L);
+        verify(subscribeRepository).findByUser_UserId(1L);
         verify(alertRepository, times(1)).findByDepartmentConfigIdIn(Collections.emptyList());
     }
 }
