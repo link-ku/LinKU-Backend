@@ -38,6 +38,3 @@ out/
 
 ### .sql file ###
 *.sql
-
-### .yml file ###
-*.yml
