@@ -37,13 +37,13 @@ public class AlertController {
 
     @PostMapping("/{departmentId}")
     public BaseResponse<Void> subscribeDepartment(@PathVariable Long departmentId){
-        alertService.subscribeDepartment(1L, departmentId);
+        departmentConfigService.subscribeDepartment(1L, departmentId);
         return BaseResponse.of(ResponseCode.SUCCESS, null);
     }
 
     @DeleteMapping("/{departmentId}")
     public BaseResponse<Void> deleteSubscription(@PathVariable Long departmentId){
-        alertService.deleteSubscription(1L, departmentId);
+        departmentConfigService.deleteSubscription(1L, departmentId);
         return BaseResponse.of(ResponseCode.SUCCESS, null);
     }
 }

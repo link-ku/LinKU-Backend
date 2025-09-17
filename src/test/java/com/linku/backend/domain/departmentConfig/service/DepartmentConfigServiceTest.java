@@ -23,8 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DepartmentConfigService 테스트")
@@ -92,5 +91,42 @@ class DepartmentConfigServiceTest {
         // when & then
         assertThrows(LinkuException.class, () -> departmentConfigService.getAllMyDepartmentConfigs(1L));
         verify(userRepository).findById(1L);
+    }
+
+    @Test
+    @DisplayName("학과 구독 성공")
+    void subscribeDepartment_savesSubscriptionSuccessfully() {
+        // given
+        // 각각 Optional.of()를 반환하도록 설정하고, subscribeRepository.save()가 subscribe 객체를 반환하도록 준비.
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
+        when(departmentConfigRepository.findById(any(Long.class))).thenReturn(Optional.of(departmentConfig));
+        when(subscribeRepository.save(any(Subscribe.class))).thenReturn(subscribe);
+
+        // when
+        // subscribeDepartment() 메서드 실행.
+        departmentConfigService.subscribeDepartment(1L, 1L);
+
+        // then
+        // 메서드가 모두 예상대로 한 번씩 호출되었는지 검증.
+        verify(userRepository).findById(1L);
+        verify(departmentConfigRepository).findById(1L);
+        verify(subscribeRepository).save(any(Subscribe.class));
+    }
+
+    @Test
+    @DisplayName("구독 삭제 성공")
+    void deleteSubscription_deletesSubscriptionSuccessfully() {
+        // given
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
+        when(departmentConfigRepository.findById(any(Long.class))).thenReturn(Optional.of(departmentConfig));
+        doNothing().when(subscribeRepository).deleteByUser_IdAndDepartmentConfig_Id(any(Long.class), any(Long.class));
+
+        // when
+        departmentConfigService.deleteSubscription(1L, 1L);
+
+        // then
+        verify(userRepository).findById(1L);
+        verify(departmentConfigRepository).findById(1L);
+        verify(subscribeRepository).deleteByUser_IdAndDepartmentConfig_Id(1L, 1L);
     }
 }

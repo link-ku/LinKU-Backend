@@ -49,4 +49,27 @@ public class DepartmentConfigService {
         return DepartmentConfigListResponse.from(list);
     }
 
+    @Transactional
+    public void subscribeDepartment(Long userId, Long departmentConfigId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+        DepartmentConfig departmentConfig = departmentConfigRepository.findById(departmentConfigId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+        Subscribe subscribe = Subscribe.builder()
+                .user(user)
+                .departmentConfig(departmentConfig)
+                .build();
+        subscribeRepository.save(subscribe);
+    }
+
+    @Transactional
+    public void deleteSubscription(Long userId, Long departmentConfigId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+        DepartmentConfig departmentConfig = departmentConfigRepository.findById(departmentConfigId)
+                .orElseThrow(()-> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+        subscribeRepository.deleteByUser_IdAndDepartmentConfig_Id(userId, departmentConfigId);
+    }
 }
