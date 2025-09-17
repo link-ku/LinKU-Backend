@@ -13,7 +13,14 @@ import java.util.Optional;
 @Repository
 public interface TemplateRepository extends JpaRepository<Template, Long> {
 
-    Optional<Template> findByTemplateIdAndOwner_UserIdAndStatus(Long templateId, Long userId, Status status);
+    @Query("SELECT DISTINCT t FROM Template t LEFT JOIN FETCH t.items " +
+            "WHERE t.templateId = :templateId " +
+            "AND t.owner.userId = :userId " +
+            "AND t.status = :status")
+    Optional<Template> findTemplateWithItemsByIdAndOwnerIdAndStatus(
+            @Param("templateId") Long templateId,
+            @Param("userId") Long userId,
+            @Param("status") Status status);
 
     @Query("SELECT t FROM Template t WHERE t.owner.userId = :userId AND t.cloned = false AND t.status = :status ORDER BY " +
             "CASE WHEN :sort = 'newest' THEN t.createdAt END DESC, " +
