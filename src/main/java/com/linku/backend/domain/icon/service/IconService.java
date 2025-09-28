@@ -2,7 +2,7 @@ package com.linku.backend.domain.icon.service;
 
 import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.domain.icon.Icon;
-import com.linku.backend.domain.icon.dto.IconDtoMapper;
+import com.linku.backend.domain.icon.dto.IconMapper;
 import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.repository.IconRepository;
 import com.linku.backend.domain.user.User;
@@ -29,7 +29,6 @@ public class IconService {
 
     private final IconRepository iconRepository;
     private final UserRepository userRepository;
-    private final IconDtoMapper iconDtoMapper;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -54,7 +53,7 @@ public class IconService {
 
             iconRepository.save(icon);
             
-            return iconDtoMapper.toIconInfoResponse(icon);
+            return IconMapper.toIconInfoResponse(icon);
 
         } catch (IOException e) {
             throw LinkuException.of(ResponseCode.ICON_UPLOAD_FAILED);
@@ -67,7 +66,7 @@ public class IconService {
         List<Icon> icons = iconRepository.findAllByOwner_UserIdAndStatus(userId, Status.ACTIVE);
 
         List<IconInfoResponse> responses = icons.stream()
-                .map(iconDtoMapper::toIconInfoResponse)
+                .map(IconMapper::toIconInfoResponse)
                 .collect(Collectors.toList());
 
         return responses;
@@ -78,7 +77,7 @@ public class IconService {
         List<Icon> icons = iconRepository.findAllByIsDefaultAndStatus(true, Status.ACTIVE);
 
         List<IconInfoResponse> responses = icons.stream()
-                .map(iconDtoMapper::toIconInfoResponse)
+                .map(IconMapper::toIconInfoResponse)
                 .collect(Collectors.toList());
 
         return responses;
@@ -99,7 +98,7 @@ public class IconService {
         icon.setName(newName);
         iconRepository.save(icon);
 
-        return iconDtoMapper.toIconInfoResponse(icon);
+        return IconMapper.toIconInfoResponse(icon);
     }
 
     @Transactional

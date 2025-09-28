@@ -1,17 +1,18 @@
 package com.linku.backend.domain.template.service;
 
 import com.linku.backend.domain.common.enums.Status;
+import com.linku.backend.domain.icon.dto.IconMapper;
+import com.linku.backend.domain.icon.repository.IconRepository;
+import com.linku.backend.domain.postedIcon.PostedIcon;
 import com.linku.backend.domain.postedtemplate.PostedTemplate;
 import com.linku.backend.domain.postedtemplate.PostedTemplateItem;
-import com.linku.backend.domain.postedtemplate.dto.PostedTemplateItemMapper;
+import com.linku.backend.domain.postedtemplate.dto.PostedTemplateMapper;
 import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateResponse;
 import com.linku.backend.domain.postedtemplate.repository.PostedTemplateRepository;
 import com.linku.backend.domain.template.Template;
 import com.linku.backend.domain.template.TemplateItem;
-import com.linku.backend.domain.template.dto.TemplateItemIconRequestMapper;
 import com.linku.backend.domain.template.dto.TemplateItemMapper;
-import com.linku.backend.domain.template.dto.TemplateItemPositionRequestMapper;
-import com.linku.backend.domain.template.dto.TemplateItemSizeRequestMapper;
+import com.linku.backend.domain.template.dto.TemplateMapper;
 import com.linku.backend.domain.template.dto.request.TemplateCreateRequest;
 import com.linku.backend.domain.template.dto.request.TemplateItemUpdateRequest;
 import com.linku.backend.domain.template.dto.request.TemplateUpdateRequest;
@@ -41,15 +42,11 @@ public class TemplateService {
     private static final String DEFAULT_SORT_TYPE = "newest";
 
     private final UserRepository userRepository;
+    private final IconRepository iconRepository;
     private final TemplateRepository templateRepository;
     private final TemplateItemRepository templateItemRepository;
     private final PostedTemplateRepository postedTemplateRepository;
 
-    private final TemplateItemMapper templateItemMapper;
-    private final PostedTemplateItemMapper postedTemplateItemMapper;
-    private final TemplateItemPositionRequestMapper templateItemPositionRequestMapper;
-    private final TemplateItemSizeRequestMapper templateItemSizeRequestMapper;
-    private final TemplateItemIconRequestMapper templateItemIconRequestMapper;
     private final TemplateValidator templateValidator;
 
     @Transactional
@@ -64,7 +61,7 @@ public class TemplateService {
 
         Template savedTemplate = templateRepository.save(newTemplate);
 
-        return convertToTemplateResponse(savedTemplate);
+        return TemplateMapper.toTemplateResponse(savedTemplate);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +70,7 @@ public class TemplateService {
         List<Template> templates = findOwnedTemplates(userId, sort, query);
 
         return templates.stream()
-                .map(this::convertToTemplateListResponse)
+                .map(TemplateMapper::toTemplateListResponse)
                 .collect(Collectors.toList());
     }
 
@@ -83,7 +80,7 @@ public class TemplateService {
         List<Template> templates = findClonedTemplates(userId, sort, query);
 
         return templates.stream()
-                .map(this::convertToTemplateListResponse)
+                .map(TemplateMapper::toTemplateListResponse)
                 .collect(Collectors.toList());
     }
 
@@ -96,7 +93,7 @@ public class TemplateService {
         updateTemplateBasicInfo(template, request);
         updateTemplateItems(template, request.getItems());
 
-        return convertToTemplateResponse(template);
+        return TemplateMapper.toTemplateResponse(template);
     }
 
     @Transactional
@@ -108,7 +105,7 @@ public class TemplateService {
     @Transactional(readOnly = true)
     public TemplateResponse getTemplateDetail(Long templateId) {
         Template template = validateAndGetTemplate(templateId, getCurrentUserId());
-        return convertToTemplateResponse(template);
+        return TemplateMapper.toTemplateResponse(template);
     }
 
     @Transactional
@@ -122,7 +119,7 @@ public class TemplateService {
 
         PostedTemplate savedPostedTemplate = postedTemplateRepository.save(newPostedTemplate);
 
-        return convertToPostedTemplateResponse(savedPostedTemplate);
+        return PostedTemplateMapper.toPostedTemplateResponse(savedPostedTemplate);
     }
 
     private List<Template> findOwnedTemplates(Long userId, String sort, String query) {
@@ -169,9 +166,9 @@ public class TemplateService {
                         .template(template)
                         .name(itemReq.getName())
                         .siteUrl(itemReq.getSiteUrl())
-                        .position(templateItemPositionRequestMapper.toEntity(itemReq.getPosition()))
-                        .size(templateItemSizeRequestMapper.toEntity(itemReq.getSize()))
-                        .icon(templateItemIconRequestMapper.toEntity(itemReq.getIcon()))
+                        .position(TemplateItemMapper.toTemplateItemPosition(itemReq.getPosition()))
+                        .size(TemplateItemMapper.toTemplateItemSize(itemReq.getSize())
+                        .icon(IconMapper.toIconInfoResponse(itemReq.getIcon())
                         .status(Status.ACTIVE)
                         .build())
                 .collect(Collectors.toList());
@@ -193,9 +190,9 @@ public class TemplateService {
             TemplateItemUpdateRequest request = itemRequestsMap.get(item.getTemplateItemId());
             item.setName(request.getName());
             item.setSiteUrl(request.getSiteUrl());
-            item.setPosition(templateItemPositionRequestMapper.toEntity(request.getPosition()));
-            item.setSize(templateItemSizeRequestMapper.toEntity(request.getSize()));
-            item.setIcon(templateItemIconRequestMapper.toEntity(request.getIcon()));
+            item.setPosition(TemplateItemMapper.toTemplateItemPosition(request.getPosition()));
+            item.setSize(TemplateItemMapper.toTemplateItemSize(request.getSize()));
+            item.setIcon(IconMapper.toIconInfoResponse(request.getIcon());
         });
 
         requestItems.stream()
@@ -204,9 +201,9 @@ public class TemplateService {
                         .template(template)
                         .name(itemReq.getName())
                         .siteUrl(itemReq.getSiteUrl())
-                        .position(templateItemPositionRequestMapper.toEntity(itemReq.getPosition()))
-                        .size(templateItemSizeRequestMapper.toEntity(itemReq.getSize()))
-                        .icon(templateItemIconRequestMapper.toEntity(itemReq.getIcon()))
+                        .position(TemplateItemMapper.toTemplateItemPosition(itemReq.getPosition()))
+                        .size(TemplateItemMapper.toTemplateItemSize(itemReq.getSize()))
+                        .icon(IconMapper.toIconInfoResponse(request.getIcon())
                         .status(Status.ACTIVE)
                         .build()));
     }
@@ -247,39 +244,6 @@ public class TemplateService {
                         .status(Status.ACTIVE)
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    private TemplateResponse convertToTemplateResponse(Template template) {
-        return TemplateResponse.builder()
-            .templateId(template.getTemplateId())
-            .name(template.getName())
-            .height(template.getHeight())
-            .cloned(Boolean.TRUE.equals(template.getCloned()))
-            .items(templateItemMapper.toResponseList(template.getItems()))
-            .build();
-    }
-
-    private TemplateListResponse convertToTemplateListResponse(Template template) {
-        return TemplateListResponse.builder()
-            .templateId(template.getTemplateId())
-            .name(template.getName())
-            .height(template.getHeight())
-            .cloned(Boolean.TRUE.equals(template.getCloned()))
-            .items(template.getItems() != null ? template.getItems().size() : 0)
-            .build();
-    }
-
-    private PostedTemplateResponse convertToPostedTemplateResponse(PostedTemplate postedTemplate) {
-        return PostedTemplateResponse.builder()
-                .postedTemplateId(postedTemplate.getPostedTemplateId())
-                .name(postedTemplate.getName())
-                .ownerId(postedTemplate.getOwner().getUserId())
-                .ownerName(postedTemplate.getOwner().getName())
-                .height(postedTemplate.getHeight())
-                .likesCount(postedTemplate.getLikesCount())
-                .usageCount(postedTemplate.getUsageCount())
-                .items(postedTemplateItemMapper.toResponseList(postedTemplate.getItems()))
-                .build();
     }
 
     private Long getCurrentUserId() {
