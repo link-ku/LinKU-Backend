@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: ca
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+# 테스트용 더미 값 설정
+  front:
+    origin: http://test.com
+
+cloud:
+  aws:
+    s3:
+      bucket-name: test-bucket
+      bucket-url: http://test-url
+    credentials:
+      access-key: test-key
+      secret-key: test-secret
+    region:
+      static: test-region
+
+data-initialization:
+  user:
+    master:
+      email: test@test.com
+      password: test-password
