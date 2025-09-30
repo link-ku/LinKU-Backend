@@ -5,6 +5,7 @@ import com.linku.backend.domain.icon.Icon;
 import com.linku.backend.domain.icon.dto.IconMapper;
 import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.repository.IconRepository;
+import com.linku.backend.domain.template.repository.TemplateItemRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
 import com.linku.backend.global.exception.LinkuException;
@@ -30,6 +31,7 @@ public class IconService {
     private final IconRepository iconRepository;
     private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
+    private final TemplateItemRepository templateItemRepository;
 
     @Transactional
     public IconInfoResponse saveIconWithImageUpload(String iconName, MultipartFile file) {
@@ -48,8 +50,8 @@ public class IconService {
                     .imageUrl(imgUrl)
                     .owner(user)
                     .isDefault(false)
+                    .status(Status.ACTIVE)
                     .build();
-            icon.setStatus(Status.ACTIVE);
 
             iconRepository.save(icon);
             
@@ -111,6 +113,10 @@ public class IconService {
 
         if(!userId.equals(owner.getUserId())){
             throw LinkuException.of(ResponseCode.ICON_NOT_OWNER);
+        }
+
+        if(templateItemRepository.existsByIcon_IconIdAndStatus(iconId, Status.ACTIVE)) {
+            throw LinkuException.of(ResponseCode.ICON_IN_USE);
         }
 
         icon.setStatus(Status.DELETED);

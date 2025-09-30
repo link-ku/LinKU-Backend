@@ -1,9 +1,10 @@
 package com.linku.backend.domain.template.service;
 
 import com.linku.backend.domain.common.enums.Status;
-import com.linku.backend.domain.icon.dto.IconMapper;
+import com.linku.backend.domain.icon.Icon;
 import com.linku.backend.domain.icon.repository.IconRepository;
 import com.linku.backend.domain.postedIcon.PostedIcon;
+import com.linku.backend.domain.postedIcon.PostedIconRepository;
 import com.linku.backend.domain.postedtemplate.PostedTemplate;
 import com.linku.backend.domain.postedtemplate.PostedTemplateItem;
 import com.linku.backend.domain.postedtemplate.dto.PostedTemplateMapper;
@@ -46,6 +47,7 @@ public class TemplateService {
     private final TemplateRepository templateRepository;
     private final TemplateItemRepository templateItemRepository;
     private final PostedTemplateRepository postedTemplateRepository;
+    private final PostedIconRepository postedIconRepository;
 
     private final TemplateValidator templateValidator;
 
@@ -161,16 +163,20 @@ public class TemplateService {
     }
 
     private List<TemplateItem> createNewTemplateItems(TemplateCreateRequest request, Template template) {
+        Long userId = getCurrentUserId();
         return request.getItems().stream()
-                .map(itemReq -> TemplateItem.builder()
-                        .template(template)
-                        .name(itemReq.getName())
-                        .siteUrl(itemReq.getSiteUrl())
-                        .position(TemplateItemMapper.toTemplateItemPosition(itemReq.getPosition()))
-                        .size(TemplateItemMapper.toTemplateItemSize(itemReq.getSize())
-                        .icon(IconMapper.toIconInfoResponse(itemReq.getIcon())
-                        .status(Status.ACTIVE)
-                        .build())
+                .map(itemReq -> {
+                    Icon icon = validateAndGetAccessibleIcon(itemReq.getIconId(), userId);
+                    return TemplateItem.builder()
+                            .template(template)
+                            .name(itemReq.getName())
+                            .siteUrl(itemReq.getSiteUrl())
+                            .position(TemplateItemMapper.toTemplateItemPosition(itemReq.getPosition()))
+                            .size(TemplateItemMapper.toTemplateItemSize(itemReq.getSize()))
+                            .icon(icon)
+                            .status(Status.ACTIVE)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -180,6 +186,17 @@ public class TemplateService {
     }
 
     private void updateTemplateItems(Template template, List<TemplateItemUpdateRequest> requestItems) {
+        Long userId = getCurrentUserId();
+
+        // 모든 iconId를 미리 수집하고 한 번에 조회 및 검증
+        Map<Long, Icon> iconMap = requestItems.stream()
+                .map(TemplateItemUpdateRequest::getIconId)
+                .distinct()
+                .collect(Collectors.toMap(
+                        iconId -> iconId,
+                        iconId -> validateAndGetAccessibleIcon(iconId, userId)
+                ));
+
         Map<Long, TemplateItemUpdateRequest> itemRequestsMap = requestItems.stream()
                 .filter(item -> item.getTemplateItemId() != null)
                 .collect(Collectors.toMap(TemplateItemUpdateRequest::getTemplateItemId, item -> item));
@@ -188,24 +205,31 @@ public class TemplateService {
 
         template.getItems().forEach(item -> {
             TemplateItemUpdateRequest request = itemRequestsMap.get(item.getTemplateItemId());
+            Icon icon = iconMap.get(request.getIconId());
             item.setName(request.getName());
             item.setSiteUrl(request.getSiteUrl());
             item.setPosition(TemplateItemMapper.toTemplateItemPosition(request.getPosition()));
             item.setSize(TemplateItemMapper.toTemplateItemSize(request.getSize()));
-            item.setIcon(IconMapper.toIconInfoResponse(request.getIcon());
+            item.setIcon(icon);
         });
 
-        requestItems.stream()
+        List<TemplateItem> newItems = requestItems.stream()
                 .filter(item -> item.getTemplateItemId() == null)
-                .forEach(itemReq -> template.getItems().add(TemplateItem.builder()
-                        .template(template)
-                        .name(itemReq.getName())
-                        .siteUrl(itemReq.getSiteUrl())
-                        .position(TemplateItemMapper.toTemplateItemPosition(itemReq.getPosition()))
-                        .size(TemplateItemMapper.toTemplateItemSize(itemReq.getSize()))
-                        .icon(IconMapper.toIconInfoResponse(request.getIcon())
-                        .status(Status.ACTIVE)
-                        .build()));
+                .map(itemReq -> {
+                    Icon icon = iconMap.get(itemReq.getIconId());
+                    return TemplateItem.builder()
+                            .template(template)
+                            .name(itemReq.getName())
+                            .siteUrl(itemReq.getSiteUrl())
+                            .position(TemplateItemMapper.toTemplateItemPosition(itemReq.getPosition()))
+                            .size(TemplateItemMapper.toTemplateItemSize(itemReq.getSize()))
+                            .icon(icon)
+                            .status(Status.ACTIVE)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        template.getItems().addAll(newItems);
     }
 
     private void softDeleteTemplate(Template template) {
@@ -232,18 +256,35 @@ public class TemplateService {
     private List<PostedTemplateItem> createPostedTemplateItems(Template template, PostedTemplate postedTemplate) {
         List<TemplateItem> templateItems = templateItemRepository.findAllByTemplate_TemplateIdAndStatus(
                 template.getTemplateId(), Status.ACTIVE);
-        
+
         return templateItems.stream()
-                .map(templateItem -> PostedTemplateItem.builder()
-                        .postedTemplate(postedTemplate)
-                        .name(templateItem.getName())
-                        .siteUrl(templateItem.getSiteUrl())
-                        .position(templateItem.getPosition())
-                        .size(templateItem.getSize())
-                        .icon(templateItem.getIcon())
-                        .status(Status.ACTIVE)
-                        .build())
+                .map(templateItem -> {
+                    PostedIcon postedIcon = postedIconRepository.findByOriginalIconId(templateItem.getIcon().getIconId())
+                            .orElseGet(() -> postedIconRepository.save(PostedIcon.from(templateItem.getIcon())));
+
+                    return PostedTemplateItem.builder()
+                            .postedTemplate(postedTemplate)
+                            .name(templateItem.getName())
+                            .siteUrl(templateItem.getSiteUrl())
+                            .position(templateItem.getPosition())
+                            .size(templateItem.getSize())
+                            .postedIcon(postedIcon)
+                            .status(Status.ACTIVE)
+                            .build();
+                })
                 .collect(Collectors.toList());
+    }
+
+    private Icon validateAndGetAccessibleIcon(Long iconId, Long userId) {
+        Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
+                .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
+
+        // 기본 아이콘이 아니고, 내 아이콘도 아니면 접근 불가
+        if (!icon.getIsDefault() && !icon.getOwner().getUserId().equals(userId)) {
+            throw LinkuException.of(ResponseCode.ICON_ACCESS_DENIED);
+        }
+
+        return icon;
     }
 
     private Long getCurrentUserId() {

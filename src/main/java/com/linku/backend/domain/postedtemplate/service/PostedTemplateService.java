@@ -1,7 +1,9 @@
 package com.linku.backend.domain.postedtemplate.service;
 
 import com.linku.backend.domain.common.enums.Status;
+import com.linku.backend.domain.icon.Icon;
 import com.linku.backend.domain.icon.repository.IconRepository;
+import com.linku.backend.domain.postedIcon.PostedIcon;
 import com.linku.backend.domain.postedtemplate.PostedTemplate;
 import com.linku.backend.domain.postedtemplate.PostedTemplateItem;
 import com.linku.backend.domain.postedtemplate.dto.PostedTemplateMapper;
@@ -150,20 +152,48 @@ public class PostedTemplateService {
     }
 
     private List<TemplateItem> cloneTemplateItems(PostedTemplate postedTemplate, Template newTemplate) {
+        Long userId = getCurrentUserId();
+        User user = validateAndGetUser(userId);
         List<PostedTemplateItem> postedTemplateItems = postedTemplateItemRepository
                 .findAllByPostedTemplate_PostedTemplateIdAndStatus(postedTemplate.getPostedTemplateId(), Status.ACTIVE);
 
         return postedTemplateItems.stream()
-                .map(postedItem -> TemplateItem.builder()
-                        .template(newTemplate)
-                        .name(postedItem.getName())
-                        .siteUrl(postedItem.getSiteUrl())
-                        .position(postedItem.getPosition())
-                        .size(postedItem.getSize())
-                        .icon(postedItem.getIcon())
-                        .status(Status.ACTIVE)
-                        .build())
+                .map(postedItem -> {
+                    Icon icon = getOrCloneIcon(postedItem.getPostedIcon(), user);
+                    return TemplateItem.builder()
+                            .template(newTemplate)
+                            .name(postedItem.getName())
+                            .siteUrl(postedItem.getSiteUrl())
+                            .position(postedItem.getPosition())
+                            .size(postedItem.getSize())
+                            .icon(icon)
+                            .status(Status.ACTIVE)
+                            .build();
+                })
                 .collect(Collectors.toList());
+    }
+
+    private Icon getOrCloneIcon(PostedIcon postedIcon, User user) {
+        Icon originalIcon = iconRepository.findByIconIdAndStatus(postedIcon.getOriginalIconId(), Status.ACTIVE)
+                .orElse(null);
+
+        // 기본 아이콘이거나 내가 소유한 아이콘이면 재사용
+        if (originalIcon != null &&
+            (originalIcon.getIsDefault() || originalIcon.getOwner().getUserId().equals(user.getUserId()))) {
+            return originalIcon;
+        }
+
+        // 다른 사람 아이콘이거나 원본이 삭제된 경우 PostedIcon 정보로 복제
+        Icon clonedIcon = Icon.builder()
+                .name(postedIcon.getName())
+                .imageUrl(postedIcon.getImageUrl())
+                .owner(user)
+                .cloned(true)
+                .isDefault(false)
+                .status(Status.ACTIVE)
+                .build();
+
+        return iconRepository.save(clonedIcon);
     }
 
     private Long getCurrentUserId() {
