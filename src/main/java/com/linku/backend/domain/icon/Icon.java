@@ -35,4 +35,7 @@ public class Icon extends BaseEntity {
 
     @Builder.Default
     private Boolean isDefault = false;
+
+    @Builder.Default
+    private Boolean cloned = false;
 }

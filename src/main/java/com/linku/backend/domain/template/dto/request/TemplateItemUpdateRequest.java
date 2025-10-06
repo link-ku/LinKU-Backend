@@ -19,6 +19,8 @@ public class TemplateItemUpdateRequest {
     @NotBlank
     private String siteUrl;
 
+    private Long iconId;
+
     @Valid
     @NotNull
     private TemplateItemPositionRequest position;
@@ -26,8 +28,4 @@ public class TemplateItemUpdateRequest {
     @Valid
     @NotNull
     private TemplateItemSizeRequest size;
-
-    @Valid
-    @NotNull
-    private TemplateItemIconRequest icon;
 }

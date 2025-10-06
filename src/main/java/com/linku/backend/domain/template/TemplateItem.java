@@ -1,9 +1,9 @@
 package com.linku.backend.domain.template;
 
 import com.linku.backend.domain.common.BaseEntity;
-import com.linku.backend.domain.common.template.IconSnapshot;
 import com.linku.backend.domain.common.template.TemplateItemPosition;
 import com.linku.backend.domain.common.template.TemplateItemSize;
+import com.linku.backend.domain.icon.Icon;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -35,8 +35,9 @@ public class TemplateItem extends BaseEntity {
     @Embedded
     private TemplateItemSize size;
 
-    @Embedded
-    private IconSnapshot icon;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "icon_icon_id")
+    private Icon icon;
 
     private LocalDateTime deletedAt;
 }
