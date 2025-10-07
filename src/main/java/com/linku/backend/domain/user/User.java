@@ -1,6 +1,7 @@
 package com.linku.backend.domain.user;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.global.auth.AuthRole;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -30,4 +31,6 @@ public class User extends BaseEntity {
     private Boolean verified;
 
     private LocalDateTime deletedAt;
+
+    private AuthRole authRole;
 }

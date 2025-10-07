@@ -36,7 +36,17 @@ public enum ResponseCode {
     TEMPLATE_ITEMS_OVERLAPPED(false, 3004, "템플릿 아이템들이 서로 겹칩니다."),
 
     // 4000 번대 : PostedTemplate 관련 요청 성공/실패
-    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다.");
+    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다."),
+
+    // 5000 번대 : Auth, JWT 관련 오류
+    INVALID_TOKEN_TYPE(false, 5001, "잘못된 토큰 타입입니다."),
+    TOKEN_NOT_FOUND(false, 5002, "토큰을 찾을 수 없습니다."),
+    INVALID_TOKEN_SIGNATURE(false, 5003, "토큰 서명이 유효하지 않습니다."),
+    EXPIRED_TOKEN(false, 5004, "이미 만료된 토큰입니다."),
+    INVALID_TOKEN(false, 5005, "유효하지 않은 토큰입니다."),
+    UNSUPPORTED_TOKEN_TYPE(false, 5006, "지원되지 않는 토큰 형식입니다."),
+    MALFORMED_TOKEN_TYPE(false, 5007, "인증 토큰이 올바르게 구성되지 않았습니다.");
+
 
     private boolean success;
     private int code;

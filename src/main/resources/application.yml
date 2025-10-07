@@ -3,6 +3,9 @@ spring:
     name: LinKU-Backend
 
   profiles:
+    group:
+      local: local, common
+      prod: prod, common
     active: local
 
   jpa:
@@ -49,7 +52,7 @@ spring:
     url: ${LOCAL_DB_URL}
     username: ${LOCAL_DB_USERNAME}
     password: ${LOCAL_DB_PASSWORD}
-    driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
@@ -77,3 +80,21 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 100
+
+---
+# Common profile
+spring:
+  config:
+    activate:
+      on-profile: common
+logging:
+  level:
+    root: info
+secret:
+  jwt:
+    key: ${JWT_KEY}
+    access:
+      expiration: 3600000
+    refresh:
+      expiration: 1209600000
+
