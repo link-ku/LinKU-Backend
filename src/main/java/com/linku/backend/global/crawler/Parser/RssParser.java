@@ -18,7 +18,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RssParser implements AlertParser {
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
