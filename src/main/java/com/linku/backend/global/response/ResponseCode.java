@@ -43,7 +43,7 @@ public enum ResponseCode {
 
     // 6000 번대 : Crawling 관련 요청 성공/실패
     CRAWLING_FAILED(false, 6000, "크롤링을 실패하였습니다."),
-    CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다.");
+    CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다."),
 
     // 7000 번대 : Like 관련 요청 성공/실패
     LIKE_SUCCESS(true, 7000, "좋아요를 눌렀습니다."),
