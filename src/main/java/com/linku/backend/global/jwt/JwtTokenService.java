@@ -4,6 +4,7 @@ import com.linku.backend.domain.user.User;
 import com.linku.backend.global.auth.AuthRole;
 import com.linku.backend.global.auth.AuthUser;
 import com.linku.backend.global.auth.dto.AuthTokenResponse;
+import com.linku.backend.global.auth.dto.GuestTokenResponse;
 import com.linku.backend.global.exception.LinkuException;
 import io.jsonwebtoken.*;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class JwtTokenService {
     private final long ACCESS_TOKEN_EXPIRATION;
     private final long REFRESH_TOKEN_EXPIRATION;
 
+    public final static String GUEST = "guest";
     public final static String ACCESS = "access";
     public final static String REFRESH = "refresh";
 
@@ -58,6 +60,16 @@ public class JwtTokenService {
 
         return new AuthTokenResponse(accessToken, refreshToken);
     }
+
+    public GuestTokenResponse generateGuestToken(Long memberId) {
+        final Claims claims = Jwts.claims();
+        claims.put("sub", memberId);
+        claims.put("role", AuthRole.ROLE_GUEST);
+        String guestToken = generateToken(claims, ACCESS_TOKEN_EXPIRATION, GUEST);
+        log.info("[generateGuestToken] 토큰을 발급할 회원 id = {}, token = {}", memberId, guestToken);
+        return new GuestTokenResponse(guestToken);
+    }
+
 
     private String generateToken(Claims claims, long expiration, String type) {
         claims.put("type", type);
@@ -94,4 +106,8 @@ public class JwtTokenService {
         }
     }
 
+    public Long extractUserIdByGuestToken(String guestToken) {
+        AuthUser authMember = (AuthUser) validateToken(guestToken, GUEST).getPrincipal();
+        return authMember.getId();
+    }
 }

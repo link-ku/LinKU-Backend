@@ -45,7 +45,14 @@ public enum ResponseCode {
     EXPIRED_TOKEN(false, 5004, "이미 만료된 토큰입니다."),
     INVALID_TOKEN(false, 5005, "유효하지 않은 토큰입니다."),
     UNSUPPORTED_TOKEN_TYPE(false, 5006, "지원되지 않는 토큰 형식입니다."),
-    MALFORMED_TOKEN_TYPE(false, 5007, "인증 토큰이 올바르게 구성되지 않았습니다.");
+    MALFORMED_TOKEN_TYPE(false, 5007, "인증 토큰이 올바르게 구성되지 않았습니다."),
+
+    GOOGLE_INVALID_CODE(false, 5008, "유효하지 않은 authorization code 입니다."),
+    GOOGLE_INVALID_ACCESS_TOKEN(false, 5009, "유효하지 않은 액세스 토큰입니다."),
+    GOOGLE_ID_TOKEN_VERIFICATION_FAILED(false, 5010, "ID 토큰 검증에 실패했습니다."),
+    GOOGLE_OAUTH_FAIL(false, 5011, "구글 소셜 로그인에 실패했습니다."),
+    UNSUPPORTED_PROVIDER(false, 5012, "지원하지 않는 provider입니다."),
+    GOOGLE_INVALID_USER_INFO_RESPONSE(false, 5013, "사용자 정보(UserInfo) 조회에 실패했습니다.");
 
 
     private boolean success;

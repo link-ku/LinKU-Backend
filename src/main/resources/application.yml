@@ -8,6 +8,7 @@ spring:
       prod: prod, common
     active: local
 
+
   jpa:
     properties:
       hibernate:
@@ -52,7 +53,7 @@ spring:
     url: ${LOCAL_DB_URL}
     username: ${LOCAL_DB_USERNAME}
     password: ${LOCAL_DB_PASSWORD}
-    driver-class-name: org.h2.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
     hibernate:
@@ -80,13 +81,35 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 100
-
 ---
 # Common profile
 spring:
   config:
     activate:
       on-profile: common
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+            scope:
+              - openid
+              - profile
+              - email
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 logging:
   level:
     root: info
