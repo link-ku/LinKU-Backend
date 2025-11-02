@@ -36,7 +36,14 @@ public enum ResponseCode {
     TEMPLATE_ITEMS_OVERLAPPED(false, 3004, "템플릿 아이템들이 서로 겹칩니다."),
 
     // 4000 번대 : PostedTemplate 관련 요청 성공/실패
-    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다.");
+    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다."),
+
+    // 7000 번대 : Like 관련 요청 성공/실패
+    LIKE_SUCCESS(true, 7000, "좋아요를 눌렀습니다."),
+    UNLIKE_SUCCESS(true, 7001, "좋아요를 취소했습니다."),
+    LIKE_COUNT_MINUS_ERR(false, 7002, "좋아요는 0미만이 될 수 없습니다."),
+    LIKE_ALREADY_EXISTS(false, 7003, "이미 좋아요를 누른 게시물입니다."),
+    LIKE_NOT_FOUND(false, 7004, "좋아요를 누르지 않은 게시물입니다.");
 
     private boolean success;
     private int code;
