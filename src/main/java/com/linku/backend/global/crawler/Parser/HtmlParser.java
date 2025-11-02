@@ -1,6 +1,7 @@
 package com.linku.backend.global.crawler.Parser;
 
 import com.linku.backend.domain.alert.Alert;
+import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -48,8 +49,7 @@ public class HtmlParser implements AlertParser {
                 .timeout(10_000)
                 .get(); // 기본적으로 HTML 파서를 사용
 
-        // 1. config.getListSelector()를 사용하여 게시글 목록 요소들을 선택 (<tr> 또는 <li>)
-        // **수정**: 반복문이 정상적으로 돌 수 있도록 다시 config.getListSelector()를 사용합니다.
+        // 1. 게시글 목록 요소들을 선택 (하드코딩: "table.board-table tr" 사용)
         Elements items = doc.select("table.board-table tr");
 
         if (items.isEmpty()) {
@@ -58,45 +58,50 @@ public class HtmlParser implements AlertParser {
 
         String origin = originOf(config.getUrl());
 
-        // 2. 각 게시글 요소를 Alert 객체로 매핑 (item은 이제 게시글 행 전체를 의미합니다.)
-        return items.stream().map(item -> {
-            Alert a = new Alert();
+        // 2. 각 게시글 요소를 Alert 객체로 매핑
+        return items.stream()
+                .map(item -> {
+                    // 필수 정보인 링크(<a>) 요소를 찾습니다.
+                    Element linkEl = item.selectFirst("td.td-subject a");
 
-            // 2-1 & 2-2: 링크와 제목을 하드코딩된 CSS 선택자 "td.td-subject a"를 기준으로 동시에 추출
-            // 실제 게시글 HTML 구조: <td class="td-subject"><a href="..."><strong>제목</strong></a></td>
-            Element linkEl = item.selectFirst("td.td-subject a");
+                    // 링크 요소가 없으면 null을 반환하여 이후 filter에서 제외됩니다.
+                    if (linkEl == null) {
+                        return null;
+                    }
 
-            if (linkEl != null) {
-                // URL 추출: <a> 태그의 href 속성
-                String link = linkEl.attr("href");
-                a.setUrl(toAbsolute(origin, link));
+                    Alert a = new Alert();
 
-                // 제목 추출: <a> 태그 내부에 있는 <strong> 태그의 텍스트를 사용
-                Element titleInner = linkEl.selectFirst("strong");
-                String title = (titleInner != null)
-                        ? titleInner.text().trim()
-                        : linkEl.text().trim(); // <strong>이 없을 경우 <a> 태그 텍스트 사용
-                a.setTitle(title.isBlank() ? "제목 없음" : title);
+                    // URL 추출: <a> 태그의 href 속성
+                    String link = linkEl.attr("href");
+                    a.setUrl(toAbsolute(origin, link));
 
-            } else {
-                // 링크 요소(<a>)가 없는 경우 예외 처리
-                a.setUrl("");
+                    // 제목 추출: <a> 태그 내부에 있는 <strong> 태그의 텍스트를 사용
+                    Element titleInner = linkEl.selectFirst("strong");
+                    String title = (titleInner != null)
+                            ? titleInner.text().trim()
+                            : linkEl.text().trim(); // <strong>이 없을 경우 <a> 태그 텍스트 사용
 
-                // <a>가 없을 경우, 제목 필드 자체(td.td-subject)를 기준으로 제목 추출 시도 (하드코딩)
-                Element titleEl = item.selectFirst("td.td-subject");
-                a.setTitle(titleEl != null ? titleEl.text().trim() : "제목 없음");
-            }
+                    // 제목이 비어 있을 경우에도 Alert 객체 생성을 막습니다.
+                    if (title.isBlank()) {
+                        return null;
+                    }
 
-            // 2-3. PostTime: 날짜를 하드코딩된 CSS 선택자 "td.td-date"를 사용하여 추출 및 파싱
-            Element dateEl = item.selectFirst("td.td-date");
-            String pub = dateEl != null ? dateEl.text().trim() : "";
-            a.setPostTime(parsePubDate(pub));
+                    a.setTitle(title);
 
-            // HTML 목록 크롤링의 경우 상세 내용은 비워둠 (별도 요청이 없는 한)
-            a.setContent("");
+                    // 2-3. PostTime: 날짜를 하드코딩된 CSS 선택자 "td.td-date"를 사용하여 추출 및 파싱
+                    Element dateEl = item.selectFirst("td.td-date");
+                    String pub = dateEl != null ? dateEl.text().trim() : "";
+                    a.setPostTime(parsePubDate(pub));
 
-            return a;
-        }).collect(Collectors.toList());
+                    // HTML 목록 크롤링의 경우 상세 내용은 비워둠 (별도 요청이 없는 한)
+                    a.setContent("");
+                    a.setStatus(Status.ACTIVE);
+
+                    return a;
+                })
+                // null 값 (필수 정보가 없는 항목)은 최종 리스트에서 제외합니다.
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     /**

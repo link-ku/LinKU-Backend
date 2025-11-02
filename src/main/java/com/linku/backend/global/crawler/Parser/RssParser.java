@@ -1,6 +1,7 @@
 package com.linku.backend.global.crawler.Parser;
 
 import com.linku.backend.domain.alert.Alert;
+import com.linku.backend.domain.common.enums.Status;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
@@ -46,20 +47,34 @@ public class RssParser implements AlertParser {
         String origin = originOf(config.getUrl());
 
         return items.stream().map(item -> {
-            Alert a = new Alert();
-            a.setTitle(item.selectFirst("title") != null ? item.selectFirst("title").text() : "");
+                    // 1. 제목 추출 및 필수 검사
+                    String title = item.selectFirst("title") != null ? item.selectFirst("title").text().trim() : "";
+                    if (title.isBlank()) {
+                        return null; // 제목 없으면 Alert 생성 건너뛰기
+                    }
 
-            String link = item.selectFirst("link") != null ? item.selectFirst("link").text() : "";
-            a.setUrl(toAbsolute(origin, link)); // 상대 → 절대 URL
+                    // 2. 링크 추출 및 필수 검사
+                    String link = item.selectFirst("link") != null ? item.selectFirst("link").text().trim() : "";
+                    if (link.isBlank()) {
+                        return null; // 링크 없으면 Alert 생성 건너뛰기
+                    }
 
-            String pub = item.selectFirst("pubDate") != null ? item.selectFirst("pubDate").text() : "";
-            a.setPostTime(parsePubDate(pub));   // 견고한 파서
+                    Alert a = new Alert();
+                    a.setTitle(title);
+                    a.setUrl(toAbsolute(origin, link)); // 상대 → 절대 URL
 
-            String content = item.selectFirst("description") != null ? item.selectFirst("description").text() : "";
-            a.setContent(content);
+                    String pub = item.selectFirst("pubDate") != null ? item.selectFirst("pubDate").text() : "";
+                    a.setPostTime(parsePubDate(pub));   // 견고한 파서
 
-            return a;
-        }).collect(Collectors.toList());
+                    String content = item.selectFirst("description") != null ? item.selectFirst("description").text() : "";
+                    a.setContent(content);
+                    a.setStatus(Status.ACTIVE);
+
+                    return a;
+
+                })
+                .filter(java.util.Objects::nonNull) // null 객체(제목 또는 링크가 없는 항목)는 최종 목록에서 제외
+                .collect(Collectors.toList());
     }
 
     // Rss를 사용한 원본 링크를 받음
