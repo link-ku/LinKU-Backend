@@ -26,6 +26,8 @@ public enum ResponseCode {
     ICON_NOT_FOUND(false, 2001, "요청 iconId에 해당하는 아이콘이 없습니다."),
     ICON_NOT_OWNER(false, 2002, "작업 수행 대상 아이콘의 소유자가 아닙니다."),
     ICON_OVER_SIZE(false, 2003, "아이콘 이미지 파일이 최대 용량을 초과했습니다."),
+    ICON_IN_USE(false, 2004, "아이콘이 템플릿에서 사용 중이므로 삭제할 수 없습니다."),
+    ICON_ACCESS_DENIED(false, 2005, "해당 아이콘에 접근할 수 없습니다."),
 
     // 3000 번대 : Template 관련 요청 성공/실패
     TEMPLATE_NOT_FOUND(false, 3001, "요청 templateId에 해당하는 템플릿이 없습니다."),
@@ -36,14 +38,19 @@ public enum ResponseCode {
     // 4000 번대 : PostedTemplate 관련 요청 성공/실패
     POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다."),
 
-    // 5000번대 : DepartmentConfig 관련 요청 성공/실패
+    // 5000 번대 : DepartmentConfig 관련 요청 성공/실패
     DEPARTMENT_NOT_FOUND(false, 5001, "학과 혹은 공지사항 파트를 찾을 수 없습니다"),
 
-    // 6000대 : Crawling 관련 요청 성공/실패
+    // 6000 번대 : Crawling 관련 요청 성공/실패
     CRAWLING_FAILED(false, 6000, "크롤링을 실패하였습니다."),
     CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다.");
 
-
+    // 7000 번대 : Like 관련 요청 성공/실패
+    LIKE_SUCCESS(true, 7000, "좋아요를 눌렀습니다."),
+    UNLIKE_SUCCESS(true, 7001, "좋아요를 취소했습니다."),
+    LIKE_COUNT_MINUS_ERR(false, 7002, "좋아요는 0미만이 될 수 없습니다."),
+    LIKE_ALREADY_EXISTS(false, 7003, "이미 좋아요를 누른 게시물입니다."),
+    LIKE_NOT_FOUND(false, 7004, "좋아요를 누르지 않은 게시물입니다.");
 
     private boolean success;
     private int code;
