@@ -52,8 +52,10 @@ public enum ResponseCode {
     GOOGLE_ID_TOKEN_VERIFICATION_FAILED(false, 5010, "ID 토큰 검증에 실패했습니다."),
     GOOGLE_OAUTH_FAIL(false, 5011, "구글 소셜 로그인에 실패했습니다."),
     UNSUPPORTED_PROVIDER(false, 5012, "지원하지 않는 provider입니다."),
-    GOOGLE_INVALID_USER_INFO_RESPONSE(false, 5013, "사용자 정보(UserInfo) 조회에 실패했습니다.");
+    GOOGLE_INVALID_USER_INFO_RESPONSE(false, 5013, "사용자 정보(UserInfo) 조회에 실패했습니다."),
 
+    MAIL_SEND_FAIL(false, 5014, "메일 전송 중 오류가 발생했습니다."),
+    AUTH_CODE_INVALID(false, 5015, "이메일 인증 실패 : 코드가 올바르지 않습니다.");
 
     private boolean success;
     private int code;

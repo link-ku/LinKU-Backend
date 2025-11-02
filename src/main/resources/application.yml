@@ -53,7 +53,7 @@ spring:
     url: ${LOCAL_DB_URL}
     username: ${LOCAL_DB_USERNAME}
     password: ${LOCAL_DB_PASSWORD}
-    driver-class-name: org.mariadb.jdbc.Driver
+    # driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
     hibernate:
@@ -110,6 +110,15 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+app:
+  mail:
+    auth-code-expiration-millis: 1800000  # 30분
+
 logging:
   level:
     root: info

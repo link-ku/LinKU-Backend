@@ -1,16 +1,23 @@
 package com.linku.backend.global.auth.service;
 
+import com.linku.backend.global.exception.LinkuException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
 
+import static com.linku.backend.global.response.ResponseCode.MAIL_SEND_FAIL;
+
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class MailService {
 
@@ -18,25 +25,13 @@ public class MailService {
     private final Map<String, String> authCodeStore = new ConcurrentHashMap<>();
 
     @Value("${spring.mail.username}")
-    private String fromEmail;
-
-
-    public MailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
-
-    // 6자리 인증코드 생성
-    public String createAuthCode() {
-        StringBuilder code = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < 6; i++) {
-            code.append(random.nextInt(10));
-        }
-        return code.toString();
-    }
-
+    private String senderEmail;
     // 인증 메일 전송
-    public void sendAuthMail(String toEmail, String authCode) {
+    public void sendAuthMail(String email) {
+        String authCode = createAuthCode();
+        log.info("[sendMail] 생성된 인증 코드 = {}", authCode);
+        MimeMessage message = mailSender.createMimeMessage();
+
         String subject = "[LinkU] 이메일 인증 코드입니다.";
         String text = """
                 안녕하세요, LinkU 입니다.
@@ -48,31 +43,39 @@ public class MailService {
                 """.formatted(authCode);
 
         try {
-            MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
-            helper.setTo(toEmail);
+            helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(text);
-            helper.setFrom(fromEmail);
+            helper.setFrom(senderEmail);
 
             mailSender.send(message);
-
-            // 인증 코드 저장
-            authCodeStore.put(toEmail, authCode);
+            authCodeStore.put(email, authCode);
 
         } catch (MessagingException e) {
-            throw new RuntimeException("메일 전송 중 오류가 발생했습니다.", e);
+            throw LinkuException.of(MAIL_SEND_FAIL);
         }
+    }
+
+    private String createAuthCode() {
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            code.append(random.nextInt(10));
+        }
+        return code.toString();
     }
 
     // 인증 코드 검증
     public boolean verifyAuthCode(String email, String inputCode) {
-        String storedCode = authCodeStore.get(email);
-        if (storedCode != null && storedCode.equals(inputCode)) {
-            authCodeStore.remove(email); // 검증 성공 후 삭제
+        String stored = authCodeStore.get(email);
+        if (stored != null && stored.equals(inputCode)) {
+            // one-time use: remove upon successful verification
+            authCodeStore.remove(email);
             return true;
         }
         return false;
     }
+
 }
