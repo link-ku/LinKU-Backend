@@ -17,6 +17,8 @@ public class TemplateItemCreateRequest {
     @NotBlank
     private String siteUrl;
 
+    private Long iconId;
+
     @Valid
     @NotNull
     private TemplateItemPositionRequest position;
@@ -24,8 +26,4 @@ public class TemplateItemCreateRequest {
     @Valid
     @NotNull
     private TemplateItemSizeRequest size;
-
-    @Valid
-    @NotNull
-    private TemplateItemIconRequest icon;
 }
