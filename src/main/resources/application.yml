@@ -6,7 +6,7 @@ spring:
     group:
       local: local, common
       prod: prod, common
-    active: prod
+    active: local
 
   jpa:
     properties:
