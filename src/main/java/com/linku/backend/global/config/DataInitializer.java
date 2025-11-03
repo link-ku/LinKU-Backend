@@ -5,6 +5,7 @@ import com.linku.backend.domain.icon.Icon;
 import com.linku.backend.domain.icon.repository.IconRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
+import com.linku.backend.global.auth.AuthRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -37,6 +38,8 @@ public class DataInitializer implements CommandLineRunner {
                     .name("master")
                     .gMail(masterEmail)
                     .verified(true)
+                    .providerId("MASTER_ADMIN")
+                    .authRole(AuthRole.ROLE_MEMBER)
                     .status(Status.ACTIVE)
                     .build();
             userRepository.save(masterUser);
