@@ -37,7 +37,6 @@ public class DataInitializer implements CommandLineRunner {
             User masterUser = User.builder()
                     .name("master")
                     .gMail(masterEmail)
-                    .verified(true)
                     .providerId("MASTER_ADMIN")
                     .authRole(AuthRole.ROLE_MEMBER)
                     .status(Status.ACTIVE)

@@ -25,20 +25,20 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(length = 50)
     private String name;
 
     private String gMail;
 
     private String kuMail;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 30)
     private String providerId;
 
-    private Boolean verified;
+    @Column(length = 20)
+    private AuthRole authRole;
 
     private LocalDateTime deletedAt;
-
-    private AuthRole authRole;
 
     public static User guest(OAuth2User oAuth2User) {
         return new User(
