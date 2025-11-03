@@ -8,7 +8,6 @@ spring:
       prod: prod, common
     active: local
 
-
   jpa:
     properties:
       hibernate:
