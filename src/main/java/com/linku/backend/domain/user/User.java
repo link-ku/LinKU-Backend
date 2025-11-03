@@ -1,10 +1,8 @@
 package com.linku.backend.domain.user;
 
 import com.linku.backend.domain.common.BaseEntity;
-import com.linku.backend.domain.user.dto.SignupRequest;
 import com.linku.backend.global.auth.AuthRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,11 +27,12 @@ public class User extends BaseEntity {
 
     private String name;
 
-    private String email;
+    private String gMail;
 
+    private String kuMail;
+
+    @Column(nullable = false, unique = true)
     private String providerId;
-
-    private String password;
 
     private Boolean verified;
 
@@ -49,15 +48,15 @@ public class User extends BaseEntity {
         );
     }
 
-    private User(String providerId, String email, String name) {
+    private User(String providerId, String gMail, String name) {
         this.providerId = providerId;
-        this.email = email;
+        this.gMail = gMail;
         this.name = name;
         this.authRole = AuthRole.ROLE_GUEST;
     }
 
-    public void updateInfo(SignupRequest request) {
-        this.name = request.name();
+    public void updateInfo(String kuMail) {
+        this.kuMail = kuMail;
         this.authRole = AuthRole.ROLE_MEMBER;
     }
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.linku.backend.global.response.ResponseCode.AUTH_CODE_INVALID;
 import static com.linku.backend.global.response.ResponseCode.MAIL_SEND_FAIL;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class MailService {
 
     @Value("${spring.mail.username}")
     private String senderEmail;
-    // 인증 메일 전송
+
     public void sendAuthMail(String email) {
         String authCode = createAuthCode();
         log.info("[sendMail] 생성된 인증 코드 = {}", authCode);
@@ -67,15 +68,13 @@ public class MailService {
         return code.toString();
     }
 
-    // 인증 코드 검증
-    public boolean verifyAuthCode(String email, String inputCode) {
+    public void verifyAuthCode(String email, String inputCode) {
         String stored = authCodeStore.get(email);
         if (stored != null && stored.equals(inputCode)) {
-            // one-time use: remove upon successful verification
             authCodeStore.remove(email);
-            return true;
+            return;
         }
-        return false;
+        throw LinkuException.of(AUTH_CODE_INVALID);
     }
 
 }

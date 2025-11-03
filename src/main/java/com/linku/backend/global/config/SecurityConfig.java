@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable);            //HTTP Basic 인증 방식 비활성화
 
         //경로별 인가 작업
-        httpSecurity
+        HttpSecurity roleGuest = httpSecurity
                 .oauth2Login((oauth) ->
                         oauth.userInfoEndpoint(userInfoEndpointConfig ->
                                         userInfoEndpointConfig.userService(oAuthService))
@@ -66,8 +66,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/send-code",
-                                "/auth/verify-code",
-                                "/users/signup"
+                                "/auth/verify-code"
                         ).hasAuthority("ROLE_GUEST")
                         .requestMatchers(
                                 "/api/example/to-be-authenticated"
