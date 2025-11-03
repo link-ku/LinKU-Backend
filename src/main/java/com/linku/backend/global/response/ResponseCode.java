@@ -55,7 +55,14 @@ public enum ResponseCode {
     GOOGLE_INVALID_USER_INFO_RESPONSE(false, 5013, "사용자 정보(UserInfo) 조회에 실패했습니다."),
     KUMAIL_ALREADY(false, 5014, "이미 존재하는 건국대학교 이메일입니다."),
     MAIL_SEND_FAIL(false, 5015, "메일 전송 중 오류가 발생했습니다."),
-    AUTH_CODE_INVALID(false, 5016, "이메일 인증에 실패했습니다. 인증 코드가 올바르지 않습니다.");
+    AUTH_CODE_INVALID(false, 5016, "이메일 인증에 실패했습니다. 인증 코드가 올바르지 않습니다."),
+
+    // 7000 번대 : Like 관련 요청 성공/실패
+    LIKE_SUCCESS(true, 7000, "좋아요를 눌렀습니다."),
+    UNLIKE_SUCCESS(true, 7001, "좋아요를 취소했습니다."),
+    LIKE_COUNT_MINUS_ERR(false, 7002, "좋아요는 0미만이 될 수 없습니다."),
+    LIKE_ALREADY_EXISTS(false, 7003, "이미 좋아요를 누른 게시물입니다."),
+    LIKE_NOT_FOUND(false, 7004, "좋아요를 누르지 않은 게시물입니다.");
 
     private boolean success;
     private int code;
