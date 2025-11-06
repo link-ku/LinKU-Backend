@@ -1,4 +1,7 @@
 spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
     url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
@@ -13,6 +16,37 @@ spring:
 # 테스트용 더미 값 설정
   front:
     origin: http://test.com
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-google-client-id
+            client-secret: test-google-client-secret
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            scope:
+              - openid
+              - profile
+              - email
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: test-mail@example.com
+    password: test-mail-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+app:
+  mail:
+    auth-code-expiration-millis: 1800000  # 30분
 
 cloud:
   aws:
@@ -30,3 +64,11 @@ data-initialization:
     master:
       email: test@test.com
       password: test-password
+
+secret:
+  jwt:
+    key: testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest
+    access:
+      expiration: 3600000
+    refresh:
+      expiration: 1209600000
