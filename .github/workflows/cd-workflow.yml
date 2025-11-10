@@ -79,6 +79,17 @@ jobs:
                  -e PROD_DB_URL=${{ secrets.PROD_DB_URL }} \
                  -e PROD_DB_USERNAME=${{ secrets.PROD_DB_USERNAME }} \
                  -e PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }} \
+                 -e DATA_LOCATION_SQL=${{ secrets.DATA_LOCATION_SQL }} \
+                 -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+                 -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+                 -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
+                 -e MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
+                 -e MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} \
+                 -e JWT_KEY=${{ secrets.JWT_KEY }} \
                  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+
+            echo "Waiting for container to be healthy..."
+            sleep 20
+            sudo docker logs github-actions-demo
 
             sudo docker system prune -f
