@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     boolean existsByUrl(String url);
-    List<Alert> findByDepartmentConfigIdIn(List<Long> departmentConfigIds);
+
+    List<Alert> findByDepartmentConfigIdInOrderByPostTimeDesc(List<Long> departmentConfigIds);
 }

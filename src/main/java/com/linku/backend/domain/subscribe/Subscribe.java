@@ -17,6 +17,7 @@ import lombok.*;
 public class Subscribe extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subscribe_id")
     private Long id;
 
@@ -25,7 +26,7 @@ public class Subscribe extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_conifg_id")
+    @JoinColumn(name = "department_config_id")
     private DepartmentConfig departmentConfig;
 
     private String customName;

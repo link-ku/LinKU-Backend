@@ -55,11 +55,53 @@ public class AlertService {
                 .toList();
 
         // 3) 해당 departmentConfigId에 속하는 알림들 조회
-        List<Alert> alerts = alertRepository.findByDepartmentConfigIdIn(departmentConfigIds);
+        List<Alert> alerts = alertRepository.findByDepartmentConfigIdInOrderByPostTimeDesc(departmentConfigIds);
 
         List<AlertResponse> alertResponses = alerts.stream()
                 .map(AlertResponse::from)
                 .toList();
         return AlertListResponse.from(alertResponses);
+    }
+
+    @Transactional(readOnly = true)
+    public AlertListResponse getMyAlertsWithDepartments(Long userId, List<String> departmentNames) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+
+        // 1) 내 구독 DepartmentConfig ID들
+        List<Long> subscribedIds = subscribeRepository.findByUser_UserId(userId).stream()
+                .map(s -> s.getDepartmentConfig().getId())
+                .toList();
+
+
+        if (subscribedIds.isEmpty()) {
+            // 구독한게 없으면 빈 리스트 반환
+            return AlertListResponse.from(List.of());
+        }
+
+        // 2) 전달받은 학과 이름 -> DepartmentConfig ID들
+        List<Long> filterIds = departmentConfigRepository.findByNameIn(departmentNames).stream()
+                .map(DepartmentConfig::getId)
+                .toList();
+
+        if (filterIds.isEmpty()) {
+            // 전달된 학과명이 모두 없으면 빈 결과
+            return AlertListResponse.from(List.of());
+        }
+
+        // 3) 내 구독과 요청 필터의 교집합
+        List<Long> targetIds = filterIds.stream()
+                .filter(subscribedIds::contains)
+                .toList();
+
+        if (targetIds.isEmpty()) {
+            // 내가 구독하지 않은 학과만 요청한 경우
+            return AlertListResponse.from(List.of());
+        }
+
+        // 4) 교집합에 해당하는 알림 조회 (정렬 포함)
+        List<Alert> alerts = alertRepository.findByDepartmentConfigIdInOrderByPostTimeDesc(targetIds);
+
+        return AlertListResponse.from(alerts.stream().map(AlertResponse::from).toList());
     }
 }

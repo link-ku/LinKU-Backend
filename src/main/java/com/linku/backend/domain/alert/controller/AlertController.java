@@ -9,6 +9,8 @@ import com.linku.backend.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/alerts")
@@ -18,9 +20,13 @@ public class AlertController {
     private final DepartmentConfigService departmentConfigService;
 
     @GetMapping("/my")
-    public BaseResponse<AlertListResponse> getMyAlerts() {
-        AlertListResponse response = alertService.getMyAlerts(1L);
-        return BaseResponse.of(ResponseCode.SUCCESS, response);
+    public BaseResponse<AlertListResponse> getMyAlerts(
+            @RequestParam(name = "department", required = false) List<String> departmentNames
+    ) {
+        if (departmentNames == null || departmentNames.isEmpty()) {
+            return BaseResponse.of(ResponseCode.SUCCESS, alertService.getMyAlerts(1L));
+        }
+        return BaseResponse.of(ResponseCode.SUCCESS, alertService.getMyAlertsWithDepartments(1L, departmentNames));
     }
 
     @GetMapping("/subscription")
