@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'fix/cd-workflow'
 
 permissions:
   contents: read
@@ -90,7 +89,7 @@ jobs:
                  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
 
             echo "Waiting for container to be healthy..."
-            sleep 10
+            sleep 20
             sudo docker logs github-actions-demo
 
             sudo docker system prune -f
