@@ -26,6 +26,8 @@ public enum ResponseCode {
     ICON_NOT_FOUND(false, 2001, "요청 iconId에 해당하는 아이콘이 없습니다."),
     ICON_NOT_OWNER(false, 2002, "작업 수행 대상 아이콘의 소유자가 아닙니다."),
     ICON_OVER_SIZE(false, 2003, "아이콘 이미지 파일이 최대 용량을 초과했습니다."),
+    ICON_IN_USE(false, 2004, "아이콘이 템플릿에서 사용 중이므로 삭제할 수 없습니다."),
+    ICON_ACCESS_DENIED(false, 2005, "해당 아이콘에 접근할 수 없습니다."),
 
     // 3000 번대 : Template 관련 요청 성공/실패
     TEMPLATE_NOT_FOUND(false, 3001, "요청 templateId에 해당하는 템플릿이 없습니다."),
@@ -36,13 +38,38 @@ public enum ResponseCode {
     // 4000 번대 : PostedTemplate 관련 요청 성공/실패
     POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다."),
 
-    // 5000번대 : DepartmentConfig 관련 요청 성공/실패
-    DEPARTMENT_NOT_FOUND(false, 5001, "학과 혹은 공지사항 파트를 찾을 수 없습니다"),
+    // 5000 번대 : Auth, JWT 관련 오류
+    INVALID_TOKEN_TYPE(false, 5001, "잘못된 토큰 타입입니다."),
+    TOKEN_NOT_FOUND(false, 5002, "토큰을 찾을 수 없습니다."),
+    INVALID_TOKEN_SIGNATURE(false, 5003, "토큰 서명이 유효하지 않습니다."),
+    EXPIRED_TOKEN(false, 5004, "이미 만료된 토큰입니다."),
+    INVALID_TOKEN(false, 5005, "유효하지 않은 토큰입니다."),
+    UNSUPPORTED_TOKEN_TYPE(false, 5006, "지원되지 않는 토큰 형식입니다."),
+    MALFORMED_TOKEN_TYPE(false, 5007, "인증 토큰이 올바르게 구성되지 않았습니다."),
 
+    GOOGLE_INVALID_CODE(false, 5008, "유효하지 않은 authorization code 입니다."),
+    GOOGLE_INVALID_ACCESS_TOKEN(false, 5009, "유효하지 않은 액세스 토큰입니다."),
+    GOOGLE_ID_TOKEN_VERIFICATION_FAILED(false, 5010, "ID 토큰 검증에 실패했습니다."),
+    GOOGLE_OAUTH_FAIL(false, 5011, "구글 소셜 로그인에 실패했습니다."),
+    UNSUPPORTED_PROVIDER(false, 5012, "지원하지 않는 provider입니다."),
+    GOOGLE_INVALID_USER_INFO_RESPONSE(false, 5013, "사용자 정보(UserInfo) 조회에 실패했습니다."),
+    KUMAIL_ALREADY(false, 5014, "이미 존재하는 건국대학교 이메일입니다."),
+    MAIL_SEND_FAIL(false, 5015, "메일 전송 중 오류가 발생했습니다."),
+    AUTH_CODE_INVALID(false, 5016, "이메일 인증에 실패했습니다. 인증 코드가 올바르지 않습니다."),
+    
     // 6000대 : Crawling 관련 요청 성공/실패
     CRAWLING_FAILED(false, 6000, "크롤링을 실패하였습니다."),
-    CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다.");
+    CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다."),
 
+    // 7000 번대 : Like 관련 요청 성공/실패
+    LIKE_SUCCESS(true, 7000, "좋아요를 눌렀습니다."),
+    UNLIKE_SUCCESS(true, 7001, "좋아요를 취소했습니다."),
+    LIKE_COUNT_MINUS_ERR(false, 7002, "좋아요는 0미만이 될 수 없습니다."),
+    LIKE_ALREADY_EXISTS(false, 7003, "이미 좋아요를 누른 게시물입니다."),
+    LIKE_NOT_FOUND(false, 7004, "좋아요를 누르지 않은 게시물입니다."),
+
+    // 8000번대 : DepartmentConfig 관련 요청 성공/실패
+    DEPARTMENT_NOT_FOUND(false, 8001, "학과 혹은 공지사항 파트를 찾을 수 없습니다");
 
 
     private boolean success;

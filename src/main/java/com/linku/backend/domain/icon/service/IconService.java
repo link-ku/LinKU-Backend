@@ -2,9 +2,10 @@ package com.linku.backend.domain.icon.service;
 
 import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.domain.icon.Icon;
-import com.linku.backend.domain.icon.dto.IconDtoMapper;
+import com.linku.backend.domain.icon.dto.IconMapper;
 import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.repository.IconRepository;
+import com.linku.backend.domain.template.repository.TemplateItemRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
 import com.linku.backend.global.exception.LinkuException;
@@ -29,8 +30,8 @@ public class IconService {
 
     private final IconRepository iconRepository;
     private final UserRepository userRepository;
-    private final IconDtoMapper iconDtoMapper;
     private final S3Uploader s3Uploader;
+    private final TemplateItemRepository templateItemRepository;
 
     @Transactional
     public IconInfoResponse saveIconWithImageUpload(String iconName, MultipartFile file) {
@@ -49,12 +50,12 @@ public class IconService {
                     .imageUrl(imgUrl)
                     .owner(user)
                     .isDefault(false)
+                    .status(Status.ACTIVE)
                     .build();
-            icon.setStatus(Status.ACTIVE);
 
             iconRepository.save(icon);
-            
-            return iconDtoMapper.toIconInfoResponse(icon);
+
+            return IconMapper.toIconInfoResponse(icon);
 
         } catch (IOException e) {
             throw LinkuException.of(ResponseCode.ICON_UPLOAD_FAILED);
@@ -67,7 +68,7 @@ public class IconService {
         List<Icon> icons = iconRepository.findAllByOwner_UserIdAndStatus(userId, Status.ACTIVE);
 
         List<IconInfoResponse> responses = icons.stream()
-                .map(iconDtoMapper::toIconInfoResponse)
+                .map(IconMapper::toIconInfoResponse)
                 .collect(Collectors.toList());
 
         return responses;
@@ -78,7 +79,7 @@ public class IconService {
         List<Icon> icons = iconRepository.findAllByIsDefaultAndStatus(true, Status.ACTIVE);
 
         List<IconInfoResponse> responses = icons.stream()
-                .map(iconDtoMapper::toIconInfoResponse)
+                .map(IconMapper::toIconInfoResponse)
                 .collect(Collectors.toList());
 
         return responses;
@@ -99,7 +100,7 @@ public class IconService {
         icon.setName(newName);
         iconRepository.save(icon);
 
-        return iconDtoMapper.toIconInfoResponse(icon);
+        return IconMapper.toIconInfoResponse(icon);
     }
 
     @Transactional
@@ -112,6 +113,10 @@ public class IconService {
 
         if(!userId.equals(owner.getUserId())){
             throw LinkuException.of(ResponseCode.ICON_NOT_OWNER);
+        }
+
+        if(templateItemRepository.existsByIcon_IconIdAndStatus(iconId, Status.ACTIVE)) {
+            throw LinkuException.of(ResponseCode.ICON_IN_USE);
         }
 
         icon.setStatus(Status.DELETED);

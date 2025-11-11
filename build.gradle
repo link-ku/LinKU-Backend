@@ -49,6 +49,15 @@ dependencies {
 	annotationProcessor "org.mapstruct:mapstruct-processor:1.5.5.Final"
 	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
+	// jwt token
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	// oauth & auth
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

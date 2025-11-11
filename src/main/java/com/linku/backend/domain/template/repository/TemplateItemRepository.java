@@ -11,4 +11,6 @@ import java.util.List;
 public interface TemplateItemRepository extends JpaRepository<TemplateItem, Long> {
 
     List<TemplateItem> findAllByTemplate_TemplateIdAndStatus(Long templateId, Status status);
+
+    boolean existsByIcon_IconIdAndStatus(Long iconId, Status status);
 }
