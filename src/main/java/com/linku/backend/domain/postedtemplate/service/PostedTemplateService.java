@@ -179,7 +179,7 @@ public class PostedTemplateService {
 
         // 기본 아이콘이거나 내가 소유한 아이콘이면 재사용
         if (originalIcon != null &&
-            (originalIcon.getIsDefault() || originalIcon.getOwner().getUserId().equals(user.getUserId()))) {
+                (originalIcon.getIsDefault() || originalIcon.getOwner().getUserId().equals(user.getUserId()))) {
             return originalIcon;
         }
 

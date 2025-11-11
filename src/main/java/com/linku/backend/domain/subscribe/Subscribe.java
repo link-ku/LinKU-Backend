@@ -1,27 +1,33 @@
 package com.linku.backend.domain.subscribe;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.page.Page;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "subscribes")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Subscribe extends BaseEntity {
 
     @Id
-    @ManyToOne
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "subscribe_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Id
-    @ManyToOne
-    @JoinColumn(name = "target_id")
-    private Page target;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_config_id")
+    private DepartmentConfig departmentConfig;
 
     private String customName;
 }

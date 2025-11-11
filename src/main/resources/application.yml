@@ -3,9 +3,6 @@ spring:
     name: LinKU-Backend
 
   profiles:
-    group:
-      local: local, common
-      prod: prod, common
     active: local
 
   jpa:
@@ -16,6 +13,13 @@ spring:
 
   front:
     origin: ${FRONT_ORIGIN}
+
+  sql:
+    init:
+      mode: always                # 항상 data.sql 실행
+      encoding: UTF-8             # 파일 인코딩
+      data-locations:             # sql 데이터의 경로
+        - classpath:${DATA_LOCATION_SQL}
 
 server:
   servlet:
@@ -80,52 +84,3 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 100
----
-# Common profile
-spring:
-  config:
-    activate:
-      on-profile: common
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: ${GOOGLE_REDIRECT_URI}
-            scope:
-              - openid
-              - profile
-              - email
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-
-app:
-  mail:
-    auth-code-expiration-millis: 1800000  # 30분
-
-logging:
-  level:
-    root: info
-secret:
-  jwt:
-    key: ${JWT_KEY}
-    access:
-      expiration: 3600000
-    refresh:
-      expiration: 1209600000
-

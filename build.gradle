@@ -27,17 +27,27 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// implementation 'org.springframework.boot:spring-boot-starter-scheduling'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// implementation 'com.mysql:mysql-connector-j'
+
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	runtimeOnly 'com.h2database:h2'
 
 	implementation 'io.awspring.cloud:spring-cloud-aws-s3:3.0.2'
 
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+
 	implementation 'net.coobird:thumbnailator:0.4.20'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// MapStruct
+	annotationProcessor "org.mapstruct:mapstruct-processor:1.5.5.Final"
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
 	// jwt token
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
@@ -51,6 +61,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Jsoup
+	implementation 'org.jsoup:jsoup:1.17.2'
+
+	// Test
+	testImplementation 'io.projectreactor:reactor-test'
 }
 
 tasks.named('test') {

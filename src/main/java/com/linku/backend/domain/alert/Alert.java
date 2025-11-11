@@ -1,10 +1,10 @@
 package com.linku.backend.domain.alert;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.deapartmentConfig.DepartmentConfig;
 import com.linku.backend.domain.page.Page;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,15 +12,19 @@ import java.time.LocalDateTime;
 @Table(name = "alerts")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Alert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long alertId;
+    @Column(name= "alert_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "page_id")
-    private Page page;
+    @JoinColumn(name = "department_config_id")
+    private DepartmentConfig departmentConfig;
 
     private String url;
 
@@ -28,5 +32,6 @@ public class Alert extends BaseEntity {
 
     private LocalDateTime postTime; // created_at과 다른 게시글 올라온 시간 -> 크롤링 시에 치환해주는 로직 필요
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 }

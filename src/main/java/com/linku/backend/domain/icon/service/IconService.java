@@ -54,7 +54,7 @@ public class IconService {
                     .build();
 
             iconRepository.save(icon);
-            
+
             return IconMapper.toIconInfoResponse(icon);
 
         } catch (IOException e) {
