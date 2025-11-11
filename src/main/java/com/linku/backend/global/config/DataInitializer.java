@@ -5,6 +5,7 @@ import com.linku.backend.domain.icon.Icon;
 import com.linku.backend.domain.icon.repository.IconRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
+import com.linku.backend.global.auth.AuthRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -35,30 +36,39 @@ public class DataInitializer implements CommandLineRunner {
         if (userRepository.count() == 0) {
             User masterUser = User.builder()
                     .name("master")
-                    .email(masterEmail)
-                    .password(masterPassword)
-                    .verified(true)
+                    .gMail(masterEmail)
+                    .providerId("MASTER_ADMIN")
+                    .authRole(AuthRole.ROLE_MEMBER)
                     .status(Status.ACTIVE)
                     .build();
             userRepository.save(masterUser);
         }
 
         if (iconRepository.count() == 0) {
-            List<Icon> defaultIcons = List.of(
-                    createDefaultIcon("default_client", bucketUrl+"/icon_client_default.png"),
-                    createDefaultIcon("default_person", bucketUrl+"/icon_person_default.png"),
-                    createDefaultIcon("default_filter", bucketUrl+"/icon_filter_default.png"),
-                    createDefaultIcon("default_image", bucketUrl+"/icon_image_default.png"),
-                    createDefaultIcon("default_txt", bucketUrl+"/icon_txt_default.png")
+            List<String> iconFileNames = List.of(
+                    // iconic
+                    "contact", "users-round", "message-circle-more", "map-pinned", "speech",
+                    // building
+                    "university", "school", "house", "building", "landmark",
+                    // study
+                    "book-marked", "scroll-text", "library-big", "graduation-cap", "backpack", "trophy",
+                    // services
+                    "bot", "mail", "github", "figma", "youtube", "instagram", "slack", "linkedin",
+                    // utils
+                    "clock", "alarm-clock", "calendar-days", "utensils", "lightbulb", "bell-ring", "bed", "paperclip"
             );
+
+            List<Icon> defaultIcons = iconFileNames.stream()
+                    .map(this::createDefaultIcon)
+                    .toList();
             iconRepository.saveAll(defaultIcons);
         }
     }
 
-    private Icon createDefaultIcon(String name, String imageUrl) {
+    private Icon createDefaultIcon(String name) {
         return Icon.builder()
                 .name(name)
-                .imageUrl(imageUrl)
+                .imageUrl(bucketUrl + "/" + name + ".svg")
                 .owner(null)
                 .isDefault(true)
                 .status(Status.ACTIVE)

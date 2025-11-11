@@ -1,16 +1,19 @@
 package com.linku.backend.domain.postedtemplate.service;
 
 import com.linku.backend.domain.common.enums.Status;
+import com.linku.backend.domain.icon.Icon;
+import com.linku.backend.domain.icon.repository.IconRepository;
+import com.linku.backend.domain.postedIcon.PostedIcon;
 import com.linku.backend.domain.postedtemplate.PostedTemplate;
 import com.linku.backend.domain.postedtemplate.PostedTemplateItem;
-import com.linku.backend.domain.postedtemplate.dto.PostedTemplateItemMapper;
+import com.linku.backend.domain.postedtemplate.dto.PostedTemplateMapper;
 import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateListResponse;
 import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateResponse;
 import com.linku.backend.domain.postedtemplate.repository.PostedTemplateItemRepository;
 import com.linku.backend.domain.postedtemplate.repository.PostedTemplateRepository;
 import com.linku.backend.domain.template.Template;
 import com.linku.backend.domain.template.TemplateItem;
-import com.linku.backend.domain.template.dto.TemplateItemMapper;
+import com.linku.backend.domain.template.dto.TemplateMapper;
 import com.linku.backend.domain.template.dto.response.TemplateResponse;
 import com.linku.backend.domain.template.repository.TemplateRepository;
 import com.linku.backend.domain.user.User;
@@ -33,12 +36,11 @@ public class PostedTemplateService {
     private static final String DEFAULT_SORT_TYPE = "newest";
 
     private final UserRepository userRepository;
+    private final IconRepository iconRepository;
     private final TemplateRepository templateRepository;
     private final PostedTemplateRepository postedTemplateRepository;
     private final PostedTemplateItemRepository postedTemplateItemRepository;
 
-    private final TemplateItemMapper templateItemMapper;
-    private final PostedTemplateItemMapper postedTemplateItemMapper;
 
     @Transactional(readOnly = true)
     public List<PostedTemplateListResponse> getMyPostedTemplates(String sort, String query) {
@@ -56,7 +58,7 @@ public class PostedTemplateService {
     @Transactional(readOnly = true)
     public PostedTemplateResponse getPostedTemplateDetail(Long postedTemplateId) {
         PostedTemplate postedTemplate = validateAndGetPostedTemplate(postedTemplateId);
-        return convertToPostedTemplateResponse(postedTemplate);
+        return PostedTemplateMapper.toPostedTemplateResponse(postedTemplate);
     }
 
     @Transactional
@@ -80,7 +82,7 @@ public class PostedTemplateService {
 
         Template savedTemplate = templateRepository.save(newTemplate);
 
-        return convertToTemplateResponse(savedTemplate);
+        return TemplateMapper.toTemplateResponse(savedTemplate);
     }
 
     private List<PostedTemplate> findPostedTemplatesByOwner(Long userId, String sort, String query) {
@@ -103,7 +105,7 @@ public class PostedTemplateService {
 
     private List<PostedTemplateListResponse> convertToPostedTemplateListResponse(List<PostedTemplate> postedTemplates) {
         return postedTemplates.stream()
-                .map(this::toPostedTemplateListResponse)
+                .map(PostedTemplateMapper::toPostedTemplateListResponse)
                 .collect(Collectors.toList());
     }
 
@@ -150,56 +152,48 @@ public class PostedTemplateService {
     }
 
     private List<TemplateItem> cloneTemplateItems(PostedTemplate postedTemplate, Template newTemplate) {
+        Long userId = getCurrentUserId();
+        User user = validateAndGetUser(userId);
         List<PostedTemplateItem> postedTemplateItems = postedTemplateItemRepository
                 .findAllByPostedTemplate_PostedTemplateIdAndStatus(postedTemplate.getPostedTemplateId(), Status.ACTIVE);
 
         return postedTemplateItems.stream()
-                .map(postedItem -> TemplateItem.builder()
-                        .template(newTemplate)
-                        .name(postedItem.getName())
-                        .siteUrl(postedItem.getSiteUrl())
-                        .position(postedItem.getPosition())
-                        .size(postedItem.getSize())
-                        .icon(postedItem.getIcon())
-                        .status(Status.ACTIVE)
-                        .build())
+                .map(postedItem -> {
+                    Icon icon = getOrCloneIcon(postedItem.getPostedIcon(), user);
+                    return TemplateItem.builder()
+                            .template(newTemplate)
+                            .name(postedItem.getName())
+                            .siteUrl(postedItem.getSiteUrl())
+                            .position(postedItem.getPosition())
+                            .size(postedItem.getSize())
+                            .icon(icon)
+                            .status(Status.ACTIVE)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
-    private PostedTemplateResponse convertToPostedTemplateResponse(PostedTemplate postedTemplate) {
-        return PostedTemplateResponse.builder()
-                .postedTemplateId(postedTemplate.getPostedTemplateId())
-                .name(postedTemplate.getName())
-                .ownerId(postedTemplate.getOwner().getUserId())
-                .ownerName(postedTemplate.getOwner().getName())
-                .height(postedTemplate.getHeight())
-                .likesCount(postedTemplate.getLikesCount())
-                .usageCount(postedTemplate.getUsageCount())
-                .items(postedTemplateItemMapper.toResponseList(postedTemplate.getItems()))
-                .build();
-    }
+    private Icon getOrCloneIcon(PostedIcon postedIcon, User user) {
+        Icon originalIcon = iconRepository.findByIconIdAndStatus(postedIcon.getOriginalIconId(), Status.ACTIVE)
+                .orElse(null);
 
-    private TemplateResponse convertToTemplateResponse(Template template) {
-        return TemplateResponse.builder()
-                .templateId(template.getTemplateId())
-                .name(template.getName())
-                .height(template.getHeight())
-                .cloned(Boolean.TRUE.equals(template.getCloned()))
-                .items(templateItemMapper.toResponseList(template.getItems()))
-                .build();
-    }
+        // 기본 아이콘이거나 내가 소유한 아이콘이면 재사용
+        if (originalIcon != null &&
+                (originalIcon.getIsDefault() || originalIcon.getOwner().getUserId().equals(user.getUserId()))) {
+            return originalIcon;
+        }
 
-    private PostedTemplateListResponse toPostedTemplateListResponse(PostedTemplate postedTemplate) {
-        return PostedTemplateListResponse.builder()
-                .postedTemplateId(postedTemplate.getPostedTemplateId())
-                .name(postedTemplate.getName())
-                .ownerId(postedTemplate.getOwner().getUserId())
-                .ownerName(postedTemplate.getOwner().getName())
-                .height(postedTemplate.getHeight())
-                .likesCount(postedTemplate.getLikesCount())
-                .usageCount(postedTemplate.getUsageCount())
-                .items(postedTemplate.getItems() != null ? postedTemplate.getItems().size() : 0)
+        // 다른 사람 아이콘이거나 원본이 삭제된 경우 PostedIcon 정보로 복제
+        Icon clonedIcon = Icon.builder()
+                .name(postedIcon.getName())
+                .imageUrl(postedIcon.getImageUrl())
+                .owner(user)
+                .cloned(true)
+                .isDefault(false)
+                .status(Status.ACTIVE)
                 .build();
+
+        return iconRepository.save(clonedIcon);
     }
 
     private Long getCurrentUserId() {
