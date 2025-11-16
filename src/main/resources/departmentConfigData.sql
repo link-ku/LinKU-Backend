@@ -2,12 +2,12 @@
 
 SET FOREIGN_KEY_CHECKS=0;
 
--- 기존 Unique Key가 존재한다면 삭제합니다. (오류가 발생할 수 있음)
-ALTER TABLE department_configs DROP INDEX ux_department_configs_name;
+-- 기존 Unique Key가 존재한다면 삭제합니다.
+ALTER TABLE department_configs DROP INDEX IF EXISTS ux_department_configs_name;
 
 -- Unique Key를 다시 생성합니다.
 ALTER TABLE department_configs
-  ADD UNIQUE KEY ux_department_configs_name (name);
+  ADD UNIQUE KEY IF NOT EXISTS ux_department_configs_name (name);
 
 -- 2. 데이터 삽입 (멱등성 확보)
 
