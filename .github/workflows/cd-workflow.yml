@@ -92,4 +92,9 @@ jobs:
             sleep 20
             sudo docker logs github-actions-demo
 
-            sudo docker system prune -f
+            if sudo docker ps -q -f "name=^/github-actions-demo$" | grep -q .; then
+              echo "Container is running, performing cleanup..."
+              sudo docker system prune -f
+            else
+              echo "Container is not running, skipping cleanup."
+            fi
