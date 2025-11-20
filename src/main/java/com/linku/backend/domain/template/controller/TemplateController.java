@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/templates")
+@RequestMapping("/templates")
 public class TemplateController {
 
     private final TemplateService templateService;

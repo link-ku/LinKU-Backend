@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/icons")
+@RequestMapping("/icons")
 public class IconController {
 
     private final IconService iconService;
