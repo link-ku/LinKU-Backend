@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posted-templates")
+@RequestMapping("/posted-templates")
 public class PostedTemplateController {
 
     private final PostedTemplateService postedTemplateService;
