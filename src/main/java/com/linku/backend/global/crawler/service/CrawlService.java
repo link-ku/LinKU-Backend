@@ -10,6 +10,7 @@ import com.linku.backend.global.response.ResponseCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -60,7 +61,7 @@ public class CrawlService {
                 .headers(h -> {
                     h.set("User-Agent", "LinkU-Crawler/1.0 (+https://linku.app)");
                     if (config.getLastModified() != null && !config.getLastModified().isBlank()) {
-                        h.set("If-Modified-Since", config.getLastModified());
+                        h.set(HttpHeaders.LAST_MODIFIED, config.getLastModified());
                     }
                 })
                 .exchangeToMono(resp -> {
