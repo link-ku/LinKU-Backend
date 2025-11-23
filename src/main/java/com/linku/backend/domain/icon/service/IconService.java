@@ -34,14 +34,13 @@ public class IconService {
     private final TemplateItemRepository templateItemRepository;
 
     @Transactional
-    public IconInfoResponse saveIconWithImageUpload(String iconName, MultipartFile file) {
+    public IconInfoResponse saveIconWithImageUpload(Long userId, String iconName, MultipartFile file) {
         try {
             validateFile(file);
 
             byte[] compressedImage = ImageCompressor.resizeAndCompress(file);
             String imgUrl = s3Uploader.uploadFile(compressedImage, file.getOriginalFilename(), file.getContentType());
 
-            Long userId = getCurrentUserId();
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
@@ -63,8 +62,7 @@ public class IconService {
     }
 
     @Transactional(readOnly = true)
-    public List<IconInfoResponse> getUserIcons() {
-        Long userId = getCurrentUserId();
+    public List<IconInfoResponse> getUserIcons(Long userId) {
         List<Icon> icons = iconRepository.findAllByOwner_UserIdAndStatus(userId, Status.ACTIVE);
 
         List<IconInfoResponse> responses = icons.stream()
@@ -86,11 +84,10 @@ public class IconService {
     }
 
     @Transactional
-    public IconInfoResponse renameIcon(Long iconId, String newName) {
+    public IconInfoResponse renameIcon(Long userId, Long iconId, String newName) {
         Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
 
-        Long userId = getCurrentUserId();
         User owner = icon.getOwner();
 
         if(!userId.equals(owner.getUserId())){
@@ -104,11 +101,10 @@ public class IconService {
     }
 
     @Transactional
-    public void deleteIcon(Long iconId) {
+    public void deleteIcon(Long userId, Long iconId) {
         Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
 
-        Long userId = getCurrentUserId();
         User owner = icon.getOwner();
 
         if(!userId.equals(owner.getUserId())){
@@ -128,10 +124,5 @@ public class IconService {
         if (file.isEmpty() || file.getSize() > MAX_FILE_SIZE) {
             throw LinkuException.of(ResponseCode.ICON_OVER_SIZE);
         }
-    }
-
-    private Long getCurrentUserId() {
-        // TODO 인증&인가 측 구현 완료 후 SecurityContext 기반 사용자 ID 반환 로직 추가
-        return 1L;
     }
 }

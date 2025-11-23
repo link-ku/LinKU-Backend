@@ -4,6 +4,7 @@ import com.linku.backend.domain.icon.dto.request.IconRenameRequest;
 import com.linku.backend.domain.icon.dto.request.IconUploadRequest;
 import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.service.IconService;
+import com.linku.backend.global.resolver.CurrentUserId;
 import com.linku.backend.global.response.BaseResponse;
 import com.linku.backend.global.response.ResponseCode;
 import jakarta.validation.Valid;
@@ -21,9 +22,10 @@ public class IconController {
 
     @PostMapping
     public BaseResponse<?> uploadIcon(
+            @CurrentUserId Long userId,
             @Valid @ModelAttribute IconUploadRequest request
     ) {
-        IconInfoResponse createdIcon = iconService.saveIconWithImageUpload(request.getName(), request.getFile());
+        IconInfoResponse createdIcon = iconService.saveIconWithImageUpload(userId, request.getName(), request.getFile());
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
@@ -32,8 +34,10 @@ public class IconController {
     }
 
     @GetMapping("/my")
-    public BaseResponse<?> getUserIcons() {
-        List<IconInfoResponse> icons = iconService.getUserIcons();
+    public BaseResponse<?> getUserIcons(
+            @CurrentUserId Long userId
+    ) {
+        List<IconInfoResponse> icons = iconService.getUserIcons(userId);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
@@ -53,10 +57,11 @@ public class IconController {
 
     @PutMapping("/{iconId}/rename")
     public BaseResponse<?> renameIcon(
+            @CurrentUserId Long userId,
             @PathVariable Long iconId,
             @Valid @RequestBody IconRenameRequest request
     ) {
-        IconInfoResponse renamedIcon = iconService.renameIcon(iconId, request.getName());
+        IconInfoResponse renamedIcon = iconService.renameIcon(userId, iconId, request.getName());
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
@@ -65,8 +70,11 @@ public class IconController {
     }
 
     @DeleteMapping("/{iconId}")
-    public BaseResponse<?> deleteIcon(@PathVariable Long iconId) {
-        iconService.deleteIcon(iconId);
+    public BaseResponse<?> deleteIcon(
+            @CurrentUserId Long userId,
+            @PathVariable Long iconId
+    ) {
+        iconService.deleteIcon(userId, iconId);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,

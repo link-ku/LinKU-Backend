@@ -43,8 +43,7 @@ public class PostedTemplateService {
 
 
     @Transactional(readOnly = true)
-    public List<PostedTemplateListResponse> getMyPostedTemplates(String sort, String query) {
-        Long userId = getCurrentUserId();
+    public List<PostedTemplateListResponse> getMyPostedTemplates(Long userId, String sort, String query) {
         List<PostedTemplate> postedTemplates = findPostedTemplatesByOwner(userId, sort, query);
         return convertToPostedTemplateListResponse(postedTemplates);
     }
@@ -62,22 +61,20 @@ public class PostedTemplateService {
     }
 
     @Transactional
-    public void deletePostedTemplate(Long postedTemplateId) {
-        Long userId = getCurrentUserId();
+    public void deletePostedTemplate(Long userId, Long postedTemplateId) {
         PostedTemplate postedTemplate = validateAndGetOwnerPostedTemplate(postedTemplateId, userId);
         softDeletePostedTemplate(postedTemplate);
     }
 
     @Transactional
-    public TemplateResponse clonePostedTemplate(Long postedTemplateId) {
-        Long userId = getCurrentUserId();
+    public TemplateResponse clonePostedTemplate(Long userId, Long postedTemplateId) {
         User user = validateAndGetUser(userId);
         PostedTemplate postedTemplate = validateAndGetPostedTemplate(postedTemplateId);
 
         incrementUsageCount(postedTemplate);
 
         Template newTemplate = createClonedTemplate(postedTemplate, user);
-        List<TemplateItem> newTemplateItems = cloneTemplateItems(postedTemplate, newTemplate);
+        List<TemplateItem> newTemplateItems = cloneTemplateItems(userId, postedTemplate, newTemplate);
         newTemplate.setItems(newTemplateItems);
 
         Template savedTemplate = templateRepository.save(newTemplate);
@@ -151,8 +148,7 @@ public class PostedTemplateService {
                 .build();
     }
 
-    private List<TemplateItem> cloneTemplateItems(PostedTemplate postedTemplate, Template newTemplate) {
-        Long userId = getCurrentUserId();
+    private List<TemplateItem> cloneTemplateItems(Long userId, PostedTemplate postedTemplate, Template newTemplate) {
         User user = validateAndGetUser(userId);
         List<PostedTemplateItem> postedTemplateItems = postedTemplateItemRepository
                 .findAllByPostedTemplate_PostedTemplateIdAndStatus(postedTemplate.getPostedTemplateId(), Status.ACTIVE);
@@ -194,10 +190,5 @@ public class PostedTemplateService {
                 .build();
 
         return iconRepository.save(clonedIcon);
-    }
-
-    private Long getCurrentUserId() {
-        // TODO 인증&인가 측 구현 완료 후 SecurityContext 기반 사용자 ID 반환 로직 추가
-        return 1L;
     }
 }

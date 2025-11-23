@@ -2,6 +2,7 @@ package com.linku.backend.domain.like.controller;
 
 import com.linku.backend.domain.like.dto.response.LikeResponse;
 import com.linku.backend.domain.like.service.LikeService;
+import com.linku.backend.global.resolver.CurrentUserId;
 import com.linku.backend.global.response.BaseResponse;
 import com.linku.backend.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,10 @@ public class LikeController {
 
     @PostMapping("/{postedTemplateId}/like")
     public BaseResponse<LikeResponse> createLike(
+            @CurrentUserId Long userId,
             @PathVariable Long postedTemplateId
     ) {
-        LikeResponse likeResponse = likeService.createLike(postedTemplateId);
+        LikeResponse likeResponse = likeService.createLike(userId, postedTemplateId);
         return BaseResponse.of(
                 ResponseCode.LIKE_SUCCESS,
                 likeResponse
@@ -27,9 +29,10 @@ public class LikeController {
 
     @DeleteMapping("/{postedTemplateId}/like")
     public BaseResponse<LikeResponse> deleteLike(
+            @CurrentUserId Long userId,
             @PathVariable Long postedTemplateId
     ) {
-        LikeResponse likeResponse = likeService.deleteLike(postedTemplateId);
+        LikeResponse likeResponse = likeService.deleteLike(userId, postedTemplateId);
         return BaseResponse.of(
                 ResponseCode.UNLIKE_SUCCESS,
                 likeResponse
