@@ -38,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
                     .name("master")
                     .gMail(masterEmail)
                     .providerId("MASTER_ADMIN")
-                    .authRole(AuthRole.ROLE_MEMBER)
+                    .authRole(AuthRole.MEMBER)
                     .status(Status.ACTIVE)
                     .build();
             userRepository.save(masterUser);

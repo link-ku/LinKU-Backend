@@ -64,7 +64,7 @@ public class JwtTokenService {
     public GuestTokenResponse generateGuestToken(Long memberId) {
         final Claims claims = Jwts.claims();
         claims.put("sub", memberId);
-        claims.put("role", AuthRole.ROLE_GUEST);
+        claims.put("role", AuthRole.GUEST);
         String guestToken = generateToken(claims, ACCESS_TOKEN_EXPIRATION, GUEST);
         log.info("[generateGuestToken] 토큰을 발급할 회원 id = {}, token = {}", memberId, guestToken);
         return new GuestTokenResponse(guestToken);

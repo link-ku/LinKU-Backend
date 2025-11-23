@@ -36,7 +36,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         User user = userService.findOrCreateUser(guest);
 
         // 신규회원 -> 회원가입
-        if (user.getAuthRole() == AuthRole.ROLE_GUEST) {
+        if (user.getAuthRole() == AuthRole.GUEST) {
             GuestTokenResponse guestTokenResponse = jwtTokenService.generateGuestToken(user.getUserId());
             response.setContentType("application/json;charset=UTF-8");
             String json = objectMapper.writeValueAsString(guestTokenResponse);

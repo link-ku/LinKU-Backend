@@ -4,8 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -16,6 +19,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.linku.backend.global.auth.AuthRole.GUEST;
+import static com.linku.backend.global.auth.AuthRole.MEMBER;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -24,7 +30,7 @@ public class SecurityConfig {
     private String frontOrigin;
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -34,7 +40,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         //CORS 설정
         httpSecurity
@@ -58,22 +64,25 @@ public class SecurityConfig {
                 }));
 
         //CSRF(Cross-Site Request Forgery) 보호 기능 비활성화
-        httpSecurity
-                .csrf((auth) -> auth.disable());
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         //Spring Security의 기본 폼 로그인 방식(Username & Password 로그인 폼) 비활성화
-        httpSecurity
-                .formLogin((auth) -> auth.disable());
+        httpSecurity.formLogin(AbstractHttpConfigurer::disable);
 
         //HTTP Basic 인증 방식 비활성화
-        httpSecurity
-                .httpBasic((auth) -> auth.disable());
+        httpSecurity.httpBasic(AbstractHttpConfigurer::disable);
 
         //경로별 인가 작업
         httpSecurity
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/example/to-be-authenticated").authenticated()
-                        .anyRequest().permitAll())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/example/to-be-authenticated",
+                                "/api/oauth2/authorization/google",
+                                "/error", "/actuator/health", "/index.html",
+                                "/favicon.ico", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/signup").hasRole(GUEST.getValue())
+//                        .requestMatchers(HttpMethod.POST).hasRole(MEMBER.getValue())
+                        .anyRequest().authenticated()
+                )
 
                 .exceptionHandling(customizer -> customizer
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -89,5 +98,13 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return httpSecurity.build();
+    }
+
+
+    @Bean
+    public RoleHierarchyImpl roleHierarchy() {
+        return RoleHierarchyImpl.fromHierarchy("""
+                ROLE_ADMIN > ROLE_MEMBER > ROLE_GUEST
+                """);
     }
 }

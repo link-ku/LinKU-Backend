@@ -52,11 +52,11 @@ public class User extends BaseEntity {
         this.providerId = providerId;
         this.gMail = gMail;
         this.name = name;
-        this.authRole = AuthRole.ROLE_GUEST;
+        this.authRole = AuthRole.GUEST;
     }
 
     public void updateInfo(String kuMail) {
         this.kuMail = kuMail;
-        this.authRole = AuthRole.ROLE_MEMBER;
+        this.authRole = AuthRole.MEMBER;
     }
 }

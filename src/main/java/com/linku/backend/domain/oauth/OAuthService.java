@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.linku.backend.global.auth.AuthRole.ROLE_GUEST;
+import static com.linku.backend.global.auth.AuthRole.GUEST;
 import static com.linku.backend.global.response.ResponseCode.*;
 
 
@@ -41,7 +41,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
 
             // SecurityContext에 넣길 원하는 권한 지정
             return new DefaultOAuth2User(
-                    List.of(new SimpleGrantedAuthority(ROLE_GUEST.toString())),
+                    List.of(new SimpleGrantedAuthority(GUEST.toString())),
                     // user attributes
                     Map.of(
                             "provider", Objects.requireNonNull(oAuth2User.getAttribute("sub")),
