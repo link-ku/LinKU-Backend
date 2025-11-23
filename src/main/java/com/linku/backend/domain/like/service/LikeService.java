@@ -24,9 +24,7 @@ public class LikeService {
     private final PostedTemplateRepository postedTemplateRepository;
 
     @Transactional
-    public LikeResponse createLike(Long postedTemplateId) {
-        Long userId = getCurrentUserId();
-
+    public LikeResponse createLike(Long userId, Long postedTemplateId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
@@ -47,9 +45,7 @@ public class LikeService {
     }
 
     @Transactional
-    public LikeResponse deleteLike(Long postedTemplateId) {
-        Long userId = getCurrentUserId();
-
+    public LikeResponse deleteLike(Long userId, Long postedTemplateId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
@@ -73,10 +69,5 @@ public class LikeService {
         Integer currentLikes = postedTemplate.getLikesCount();
         if (currentLikes > 0) postedTemplate.setLikesCount(currentLikes-1);
         else throw LinkuException.of(LIKE_COUNT_MINUS_ERR);
-    }
-
-    private Long getCurrentUserId() {
-        // TODO 인증&인가 측 구현 완료 후 SecurityContext 기반 사용자 ID 반환 로직 추가
-        return 1L;
     }
 }

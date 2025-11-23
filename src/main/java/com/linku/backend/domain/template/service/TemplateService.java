@@ -52,13 +52,13 @@ public class TemplateService {
     private final TemplateValidator templateValidator;
 
     @Transactional
-    public TemplateResponse createTemplate(TemplateCreateRequest request) {
-        User user = validateAndGetUser(getCurrentUserId());
+    public TemplateResponse createTemplate(Long userId, TemplateCreateRequest request) {
+        User user = validateAndGetUser(userId);
 
         templateValidator.validateTemplateItemsForCreate(request.getHeight(), request.getItems());
 
         Template newTemplate = createNewTemplate(request, user);
-        List<TemplateItem> newItems = createNewTemplateItems(request, newTemplate);
+        List<TemplateItem> newItems = createNewTemplateItems(userId, request, newTemplate);
         newTemplate.setItems(newItems);
 
         Template savedTemplate = templateRepository.save(newTemplate);
@@ -67,8 +67,7 @@ public class TemplateService {
     }
 
     @Transactional(readOnly = true)
-    public List<TemplateListResponse> getOwnedTemplates(String sort, String query) {
-        Long userId = getCurrentUserId();
+    public List<TemplateListResponse> getOwnedTemplates(Long userId, String sort, String query) {
         List<Template> templates = findOwnedTemplates(userId, sort, query);
 
         return templates.stream()
@@ -77,8 +76,7 @@ public class TemplateService {
     }
 
     @Transactional(readOnly = true)
-    public List<TemplateListResponse> getClonedTemplates(String sort, String query) {
-        Long userId = getCurrentUserId();
+    public List<TemplateListResponse> getClonedTemplates(Long userId, String sort, String query) {
         List<Template> templates = findClonedTemplates(userId, sort, query);
 
         return templates.stream()
@@ -87,33 +85,33 @@ public class TemplateService {
     }
 
     @Transactional
-    public TemplateResponse updateTemplate(Long templateId, TemplateUpdateRequest request) {
-        Template template = validateAndGetTemplate(templateId, getCurrentUserId());
+    public TemplateResponse updateTemplate(Long userId, Long templateId, TemplateUpdateRequest request) {
+        Template template = validateAndGetTemplate(templateId, userId);
 
         templateValidator.validateTemplateItemsForUpdate(request.getHeight(), request.getItems());
 
         updateTemplateBasicInfo(template, request);
-        updateTemplateItems(template, request.getItems());
+        updateTemplateItems(userId, template, request.getItems());
 
         return TemplateMapper.toTemplateResponse(template);
     }
 
     @Transactional
-    public void deleteTemplate(Long templateId) {
-        Template template = validateAndGetTemplate(templateId, getCurrentUserId());
+    public void deleteTemplate(Long userId, Long templateId) {
+        Template template = validateAndGetTemplate(templateId, userId);
         softDeleteTemplate(template);
     }
 
     @Transactional(readOnly = true)
-    public TemplateResponse getTemplateDetail(Long templateId) {
-        Template template = validateAndGetTemplate(templateId, getCurrentUserId());
+    public TemplateResponse getTemplateDetail(Long userId, Long templateId) {
+        Template template = validateAndGetTemplate(templateId, userId);
         return TemplateMapper.toTemplateResponse(template);
     }
 
     @Transactional
-    public PostedTemplateResponse postTemplate(Long templateId) {
-        Template template = validateAndGetTemplate(templateId, getCurrentUserId());
-        User user = validateAndGetUser(getCurrentUserId());
+    public PostedTemplateResponse postTemplate(Long userId, Long templateId) {
+        Template template = validateAndGetTemplate(templateId, userId);
+        User user = validateAndGetUser(userId);
 
         PostedTemplate newPostedTemplate = createPostedTemplate(template, user);
         List<PostedTemplateItem> newPostedTemplateItems = createPostedTemplateItems(template, newPostedTemplate);
@@ -162,8 +160,7 @@ public class TemplateService {
                 .build();
     }
 
-    private List<TemplateItem> createNewTemplateItems(TemplateCreateRequest request, Template template) {
-        Long userId = getCurrentUserId();
+    private List<TemplateItem> createNewTemplateItems(Long userId, TemplateCreateRequest request, Template template) {
         return request.getItems().stream()
                 .map(itemReq -> {
                     Icon icon = validateAndGetAccessibleIcon(itemReq.getIconId(), userId);
@@ -185,9 +182,7 @@ public class TemplateService {
         template.setHeight(request.getHeight());
     }
 
-    private void updateTemplateItems(Template template, List<TemplateItemUpdateRequest> requestItems) {
-        Long userId = getCurrentUserId();
-
+    private void updateTemplateItems(Long userId, Template template, List<TemplateItemUpdateRequest> requestItems) {
         // 모든 iconId를 미리 수집하고 한 번에 조회 및 검증
         Map<Long, Icon> iconMap = requestItems.stream()
                 .map(TemplateItemUpdateRequest::getIconId)
@@ -285,10 +280,5 @@ public class TemplateService {
         }
 
         return icon;
-    }
-
-    private Long getCurrentUserId() {
-        // TODO 인증&인가 측 구현 완료 후 SecurityContext 기반 사용자 ID 반환 로직 추가
-        return 1L;
     }
 }

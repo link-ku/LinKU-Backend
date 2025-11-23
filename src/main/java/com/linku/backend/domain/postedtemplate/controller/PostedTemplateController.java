@@ -4,6 +4,7 @@ import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateListRe
 import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateResponse;
 import com.linku.backend.domain.postedtemplate.service.PostedTemplateService;
 import com.linku.backend.domain.template.dto.response.TemplateResponse;
+import com.linku.backend.global.resolver.CurrentUserId;
 import com.linku.backend.global.response.BaseResponse;
 import com.linku.backend.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,11 @@ public class PostedTemplateController {
 
     @GetMapping("/my")
     public BaseResponse<List<PostedTemplateListResponse>> getMyPostedTemplates(
+            @CurrentUserId Long userId,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String query
     ) {
-        List<PostedTemplateListResponse> response = postedTemplateService.getMyPostedTemplates(sort, query);
+        List<PostedTemplateListResponse> response = postedTemplateService.getMyPostedTemplates(userId, sort, query);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
@@ -46,6 +48,7 @@ public class PostedTemplateController {
 
     @GetMapping("/{postedTemplateId}")
     public BaseResponse<PostedTemplateResponse> getPostedTemplateDetail(
+            @CurrentUserId Long userId,
             @PathVariable Long postedTemplateId
     ) {
         PostedTemplateResponse response = postedTemplateService.getPostedTemplateDetail(postedTemplateId);
@@ -58,9 +61,10 @@ public class PostedTemplateController {
 
     @DeleteMapping("/{postedTemplateId}")
     public BaseResponse<Void> deletePostedTemplate(
+            @CurrentUserId Long userId,
             @PathVariable Long postedTemplateId
     ) {
-        postedTemplateService.deletePostedTemplate(postedTemplateId);
+        postedTemplateService.deletePostedTemplate(userId, postedTemplateId);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
@@ -70,9 +74,10 @@ public class PostedTemplateController {
 
     @PostMapping("/{postedTemplateId}/clone")
     public BaseResponse<TemplateResponse> clonePostedTemplate(
+            @CurrentUserId Long userId,
             @PathVariable Long postedTemplateId
     ) {
-        TemplateResponse response = postedTemplateService.clonePostedTemplate(postedTemplateId);
+        TemplateResponse response = postedTemplateService.clonePostedTemplate(userId, postedTemplateId);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
