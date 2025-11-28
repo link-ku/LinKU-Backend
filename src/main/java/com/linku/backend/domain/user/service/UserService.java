@@ -1,5 +1,6 @@
 package com.linku.backend.domain.user.service;
 
+import com.linku.backend.domain.oauth.dto.GoogleUserInfo;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
 import com.linku.backend.global.exception.LinkuException;
@@ -23,9 +24,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public User findOrCreateUser(User guest) {
-        Optional<User> optionalUser = userRepository.findByProviderId(guest.getProviderId());
-        return optionalUser.orElseGet(() -> userRepository.save(guest));
+    public User findOrCreateUser(GoogleUserInfo userInfo) {
+        Optional<User> optionalUser = userRepository.findByProviderId(userInfo.sub());
+        return optionalUser.orElseGet(() -> userRepository.save(User.guest(userInfo)));
     }
 
     public User getUserById(Long UserId) {

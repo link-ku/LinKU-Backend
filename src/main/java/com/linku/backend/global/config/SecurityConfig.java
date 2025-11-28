@@ -1,8 +1,5 @@
 package com.linku.backend.global.config;
 
-import com.linku.backend.domain.oauth.OAuthFailureHandler;
-import com.linku.backend.domain.oauth.OAuthService;
-import com.linku.backend.domain.oauth.OAuthSuccessHandler;
 import com.linku.backend.global.jwt.JwtAuthenticationFilter;
 import com.linku.backend.global.jwt.JwtExceptionFilter;
 import com.linku.backend.global.jwt.JwtTokenService;
@@ -16,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -41,12 +37,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity httpSecurity,
-            OAuthService oAuthService,
-            OAuthSuccessHandler oAuthSuccessHandler,
-            OAuthFailureHandler oAuthFailureHandler) throws Exception {
-
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
                 .cors(corsCustomizer ->
@@ -57,21 +48,15 @@ public class SecurityConfig {
 
         //경로별 인가 작업
         HttpSecurity roleGuest = httpSecurity
-                .oauth2Login((oauth) ->
-                        oauth.userInfoEndpoint(userInfoEndpointConfig ->
-                                        userInfoEndpointConfig.userService(oAuthService))
-                                .successHandler(oAuthSuccessHandler)
-                                .failureHandler(oAuthFailureHandler))
-
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/send-code",
                                 "/auth/verify-code"
                         ).hasAuthority("ROLE_GUEST")
                         .requestMatchers(
-                                "/api/example/to-be-authenticated"
-                        ).authenticated()
-                        .anyRequest().permitAll()
+                                "/api/example/to-be-authenticated",
+                                "/api/login/oauth2/code/google"
+                        ).authenticated().anyRequest().permitAll()
                 )
 
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenService), UsernamePasswordAuthenticationFilter.class)
@@ -99,12 +84,6 @@ public class SecurityConfig {
         return RoleHierarchyImpl.fromHierarchy("""
                 ROLE_MEMBER > ROLE_GUEST
                 """);
-    }
-
-
-    @Bean
-    public DefaultOAuth2UserService defaultOAuth2UserService() {
-        return new DefaultOAuth2UserService();
     }
 
     @Bean
