@@ -4,7 +4,6 @@ import com.linku.backend.domain.user.User;
 import com.linku.backend.global.auth.AuthRole;
 import com.linku.backend.global.auth.AuthUser;
 import com.linku.backend.global.auth.dto.AuthTokenResponse;
-import com.linku.backend.global.auth.dto.GuestTokenResponse;
 import com.linku.backend.global.exception.LinkuException;
 import io.jsonwebtoken.*;
 import lombok.Getter;
@@ -61,13 +60,13 @@ public class JwtTokenService {
         return new AuthTokenResponse(accessToken, refreshToken);
     }
 
-    public GuestTokenResponse generateGuestToken(Long memberId) {
+    public String generateGuestToken(Long userId) {
         final Claims claims = Jwts.claims();
-        claims.put("sub", memberId);
+        claims.put("sub", userId);
         claims.put("role", AuthRole.ROLE_GUEST);
         String guestToken = generateToken(claims, ACCESS_TOKEN_EXPIRATION, GUEST);
-        log.info("[generateGuestToken] 토큰을 발급할 회원 id = {}, token = {}", memberId, guestToken);
-        return new GuestTokenResponse(guestToken);
+        log.info("[generateGuestToken] 토큰을 발급할 회원 id = {}, token = {}", userId, guestToken);
+        return guestToken;
     }
 
 

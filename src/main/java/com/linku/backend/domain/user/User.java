@@ -1,6 +1,7 @@
 package com.linku.backend.domain.user;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.oauth.dto.GoogleUserInfo;
 import com.linku.backend.global.auth.AuthRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.time.LocalDateTime;
 
@@ -40,11 +40,11 @@ public class User extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
-    public static User guest(OAuth2User oAuth2User) {
+    public static User guest(GoogleUserInfo userInfo) {
         return new User(
-                oAuth2User.getAttribute("sub"),
-                oAuth2User.getAttribute("email"),
-                oAuth2User.getAttribute("name")
+                userInfo.sub(),
+                userInfo.email(),
+                userInfo.name()
         );
     }
 
