@@ -36,6 +36,7 @@ public class User extends BaseEntity {
     private String providerId;
 
     @Column(length = 20)
+    @Enumerated(EnumType.STRING)
     private AuthRole authRole;
 
     private LocalDateTime deletedAt;
