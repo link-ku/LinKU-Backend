@@ -12,6 +12,7 @@ import com.linku.backend.global.exception.LinkuException;
 import com.linku.backend.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class DepartmentConfigService {
 
     @Transactional(readOnly = true)
     public DepartmentConfigListResponse getAllDepartmentConfigs() {
-        List<DepartmentConfig> departmentConfigList = departmentConfigRepository.findAll();
+        List<DepartmentConfig> departmentConfigList = departmentConfigRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
 
         List<DepartmentConfigResponse> list = departmentConfigList.stream()
                 .map(department -> DepartmentConfigResponse.of(department.getId(), department.getName()))
@@ -41,7 +42,7 @@ public class DepartmentConfigService {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
-        List<Subscribe> subscribeList = subscribeRepository.findByUser_UserId(userId);
+        List<Subscribe> subscribeList = subscribeRepository.findByUser_UserIdOrderByDepartmentConfig_IdAsc(userId);
 
         List<DepartmentConfigResponse> list = subscribeList.stream()
                 .map(subscribe -> DepartmentConfigResponse.of(subscribe.getDepartmentConfig().getId(), subscribe.getDepartmentConfig().getName()))

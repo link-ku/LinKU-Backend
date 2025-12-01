@@ -47,7 +47,7 @@ public class AlertService {
                 .orElseThrow(()-> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
         // 1) 구독 정보 조회
-        List<Subscribe> subscribes = subscribeRepository.findByUser_UserId(userId);
+        List<Subscribe> subscribes = subscribeRepository.findByUser_UserIdOrderByDepartmentConfig_IdAsc(userId);
 
         // 2) 구독한 departmentConfigId 리스트 뽑기
         List<Long> departmentConfigIds = subscribes.stream()
@@ -69,7 +69,7 @@ public class AlertService {
                 .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
         // 1) 내 구독 DepartmentConfig ID들
-        List<Long> subscribedIds = subscribeRepository.findByUser_UserId(userId).stream()
+        List<Long> subscribedIds = subscribeRepository.findByUser_UserIdOrderByDepartmentConfig_IdAsc(userId).stream()
                 .map(s -> s.getDepartmentConfig().getId())
                 .toList();
 
