@@ -13,8 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @Slf4j
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,10 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        Authentication authentication = jwtTokenService.validateToken(token, JwtTokenService.ACCESS);
+
+        // 요청 URI에 따라 기대하는 토큰 타입을 분기
+        String expectedType = resolveTokenType(request);
+
+        Authentication authentication = jwtTokenService.validateToken(token, expectedType);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.debug("JWT 인증 성공: {}", authentication.getName());
-        tokenValidateAndAuthorization(token);
+        log.info("JWT 인증 성공: {}, type = {}", authentication.getName(), expectedType);
         filterChain.doFilter(request, response);
     }
 
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @Brief 토큰 파싱하여 Bearer 타입인지 확인하고 그 부분 잘라내서 반환
      */
     private String resolveToken(HttpServletRequest request) {
-        String authorization = request.getHeader(AUTHORIZATION);
+        String authorization = request.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
         if (StringUtils.hasText(authorization) && authorization.startsWith(BEARER)) {
             return authorization.substring(BEARER.length());
         }
@@ -52,11 +53,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * @param token
-     * @Brief 토큰 검증하고 인가 처리
+     * @param request
+     * @Brief 요청 URI 에 따라 기대하는 토큰 타입(access / guest)을 결정
      */
-    private void tokenValidateAndAuthorization(String token) {
-        SecurityContextHolder.getContext().setAuthentication(
-                jwtTokenService.validateToken(token, JwtTokenService.ACCESS));
+    private String resolveTokenType(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+
+        // 게스트 토큰으로 접근해야 하는 엔드포인트들
+        // TODO: 실제 게스트 전용 엔드포인트 패턴에 맞게 수정하세요.
+        if (uri.startsWith("/auth/guest")
+                || uri.startsWith("/auth/send-code")
+                || uri.startsWith("/auth/verify-code")) {
+            return JwtTokenService.GUEST;
+        }
+
+        // 기본은 access 토큰으로 처리
+        return JwtTokenService.ACCESS;
     }
 }

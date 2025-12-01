@@ -87,7 +87,7 @@ public class JwtTokenService {
         return new UsernamePasswordAuthenticationToken(authUser, "", authorities);
     }
 
-    public Authentication validateToken(String rawToken, String type) {
+    public Authentication validateToken(String rawToken, String... types) {
         if (rawToken == null) {
             return null;
         }
@@ -95,10 +95,11 @@ public class JwtTokenService {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             Claims body = claims.getBody();
-            if (body.get("type").equals(type)) {
-                return getAuthentication(body);
+            for (String type : types) {
+                if (body.get("type").equals(type)) {
+                    return getAuthentication(body);
+                }
             }
-
             throw LinkuException.of(INVALID_TOKEN_TYPE);
         } catch (ExpiredJwtException e) {
             throw LinkuException.of(EXPIRED_TOKEN);
