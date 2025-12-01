@@ -30,12 +30,12 @@ cloud:
   aws:
     s3:
       bucket-name: ${S3_BUCKET_NAME}
-      bucket-url: ${S3_BUCKET_URL}
     credentials:
       access-key: ${S3_ACCESS_KEY}
       secret-key: ${S3_SECRET_KEY}
     region:
       static: ${S3_REGION}
+    cloud-front-url: ${CLOUD_FRONT_URL}
 
 data-initialization:
   user:

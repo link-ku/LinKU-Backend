@@ -27,8 +27,8 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${data-initialization.user.master.password}")
     private String masterPassword;
 
-    @Value("${cloud.aws.s3.bucket-url}")
-    private String bucketUrl;
+    @Value("${cloud.aws.cloud-front-url}")
+    private String cloudFrontUrl;
 
     @Override
     @Transactional
@@ -68,7 +68,7 @@ public class DataInitializer implements CommandLineRunner {
     private Icon createDefaultIcon(String name) {
         return Icon.builder()
                 .name(name)
-                .imageUrl(bucketUrl + "/" + name + ".svg")
+                .imageUrl(cloudFrontUrl + "/" + name + ".svg")
                 .owner(null)
                 .isDefault(true)
                 .status(Status.ACTIVE)

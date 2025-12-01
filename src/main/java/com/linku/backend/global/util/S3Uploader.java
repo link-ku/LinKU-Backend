@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.util.UUID;
@@ -18,6 +17,9 @@ public class S3Uploader {
 
     @Value("${cloud.aws.s3.bucket-name}")
     private String bucketName;
+
+    @Value("${cloud.aws.cloud-front-url}")
+    private String cloudFrontUrl;
 
     private final S3Client s3Client;
 
@@ -36,12 +38,7 @@ public class S3Uploader {
 
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(data));
 
-        GetUrlRequest getUrlRequest = GetUrlRequest.builder()
-                .bucket(bucketName)
-                .key(fileName)
-                .build();
-
-        return s3Client.utilities().getUrl(getUrlRequest).toString();
+        return cloudFrontUrl + "/" + fileName;
     }
 
     public String buildFileName(String originalFileName) {
