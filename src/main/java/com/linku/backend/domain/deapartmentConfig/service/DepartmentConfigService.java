@@ -56,6 +56,12 @@ public class DepartmentConfigService {
         DepartmentConfig departmentConfig = departmentConfigRepository.findById(departmentConfigId)
                 .orElseThrow(()-> LinkuException.of(ResponseCode.DEPARTMENT_NOT_FOUND));
 
+        boolean exists = subscribeRepository.existsByUser_UserIdAndDepartmentConfig_Id(userId, departmentConfigId);
+
+        if (exists) {
+            throw LinkuException.of(ResponseCode.ALREADY_SUBSCRIBED);
+        }
+
         Subscribe subscribe = Subscribe.builder()
                 .user(user)
                 .departmentConfig(departmentConfig)
