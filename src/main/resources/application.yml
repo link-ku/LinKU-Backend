@@ -51,14 +51,10 @@ spring:
       on-profile: local
 
   datasource:
-    # url: ${LOCAL_DB_URL}
-    # username: ${LOCAL_DB_USERNAME}
-    # password: ${LOCAL_DB_PASSWORD}
-    # driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:h2:mem:linku;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+     url: ${LOCAL_DB_URL}
+     username: ${LOCAL_DB_USERNAME}
+     password: ${LOCAL_DB_PASSWORD}
+     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create
