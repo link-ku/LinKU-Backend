@@ -69,8 +69,10 @@ public enum ResponseCode {
     LIKE_NOT_FOUND(false, 7004, "좋아요를 누르지 않은 게시물입니다."),
 
     // 8000번대 : DepartmentConfig 관련 요청 성공/실패
-    DEPARTMENT_NOT_FOUND(false, 8001, "학과 혹은 공지사항 파트를 찾을 수 없습니다");
+    DEPARTMENT_NOT_FOUND(false, 8001, "학과 혹은 공지사항 파트를 찾을 수 없습니다"),
 
+    // 9000번대 : Subscribe 관련 요청 성공/실패
+    ALREADY_SUBSCRIBED(false, 9001, "이미 구독이 되어있습니다");
 
     private boolean success;
     private int code;
