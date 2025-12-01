@@ -32,6 +32,8 @@ public class Alert extends BaseEntity {
 
     private LocalDateTime postTime; // created_at과 다른 게시글 올라온 시간 -> 크롤링 시에 치환해주는 로직 필요
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 }
