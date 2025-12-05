@@ -76,6 +76,7 @@ public class TemplateItemMapper {
             return null;
         }
         return TemplateItemIconResponse.builder()
+                .iconId(templateItem.getIcon().getIconId())
                 .iconName(templateItem.getIcon().getName())
                 .iconUrl(templateItem.getIcon().getImageUrl())
                 .build();

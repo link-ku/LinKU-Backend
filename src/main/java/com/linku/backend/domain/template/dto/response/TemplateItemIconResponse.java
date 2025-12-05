@@ -7,6 +7,7 @@ import lombok.Builder;
 @Builder
 public class TemplateItemIconResponse {
 
+    private Long iconId;
     private String iconName;
     private String iconUrl;
 }
