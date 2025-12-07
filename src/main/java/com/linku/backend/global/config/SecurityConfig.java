@@ -49,13 +49,15 @@ public class SecurityConfig {
         //경로별 인가 작업
         HttpSecurity roleGuest = httpSecurity
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()        //preflight 요청은 Auth token 없으므로 항상 permit
                         .requestMatchers(
                                 "/auth/send-code",
                                 "/auth/verify-code"
                         ).hasAuthority("ROLE_GUEST")
                         .requestMatchers(
                                 "/api/example/to-be-authenticated",
-                                "/api/login/oauth2/code/google"
+                                "/api/login/oauth2/code/google",
+                                "/api/oauth2/google/login"
                         ).authenticated().anyRequest().permitAll()
                 )
 
