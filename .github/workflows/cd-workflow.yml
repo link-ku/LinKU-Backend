@@ -3,7 +3,7 @@ name: CD Workflow
 on:
   push:
     branches:
-      - '*'
+      - '**'
 
 permissions:
   contents: read
