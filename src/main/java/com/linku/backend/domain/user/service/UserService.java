@@ -27,7 +27,14 @@ public class UserService {
     @Transactional
     public User findOrCreateUser(GoogleUserInfo userInfo) {
         Optional<User> optionalUser = userRepository.findByProviderId(userInfo.sub());
-        return optionalUser.orElseGet(() -> userRepository.save(User.guest(userInfo)));
+
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            existingUser.updatePictureIfEmpty(userInfo.picture());
+            return existingUser;
+        }
+
+        return userRepository.save(User.guest(userInfo));
     }
 
     public User getUserById(Long UserId) {

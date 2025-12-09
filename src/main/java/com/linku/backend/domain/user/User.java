@@ -81,4 +81,10 @@ public class User extends BaseEntity {
 
         return gMail.substring(0, atIndex);
     }
+
+    public void updatePictureIfEmpty(String picture) {
+        if (this.picture == null || this.picture.isBlank()) {
+            this.picture = picture;
+        }
+    }
 }
