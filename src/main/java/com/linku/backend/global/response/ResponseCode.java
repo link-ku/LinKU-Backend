@@ -56,8 +56,7 @@ public enum ResponseCode {
     KUMAIL_ALREADY(false, 5014, "이미 존재하는 건국대학교 이메일입니다."),
     MAIL_SEND_FAIL(false, 5015, "메일 전송 중 오류가 발생했습니다."),
     AUTH_CODE_INVALID(false, 5016, "이메일 인증에 실패했습니다. 인증 코드가 올바르지 않습니다."),
-    GOOGLE_MAIL_INVALID(false, 5017, "구글 이메일 형식이 올바르지 않습니다."),
-
+    
     // 6000대 : Crawling 관련 요청 성공/실패
     CRAWLING_FAILED(false, 6000, "크롤링을 실패하였습니다."),
     CRAWLING_PARSING_FAILED(false, 6001, "크롤링 파싱을 실패하였습니다."),

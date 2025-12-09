@@ -5,8 +5,7 @@ import com.linku.backend.domain.user.User;
 public record UserInfoResponse(
         String accessToken,
         String refreshToken,
-        String googleId,
-        String profileImage,
+        Long userId,
         String name,
         String kuMail
 ) {
@@ -14,8 +13,7 @@ public record UserInfoResponse(
         return new UserInfoResponse(
                 authTokenResponse.accessToken(),
                 authTokenResponse.refreshToken(),
-                user.getGoogleId(),     // 구글 이메일이 등록되어 있지 않으면 null이 반환됨
-                user.getPicture(),
+                user.getUserId(),
                 user.getName(),
                 user.getKuMail()
         );

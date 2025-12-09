@@ -72,11 +72,7 @@ public class JwtTokenService {
 
     private String generateToken(Claims claims, long expiration, String type) {
         claims.put("type", type);
-        return Jwts.builder().setClaims(claims)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        return Jwts.builder().setClaims(claims).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + expiration)).signWith(SignatureAlgorithm.HS256, secretKey).compact();
     }
 
     // 토큰 검증 이후에 사용

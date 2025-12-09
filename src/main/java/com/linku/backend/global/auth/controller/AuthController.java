@@ -4,9 +4,7 @@ import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.service.UserService;
 import com.linku.backend.global.auth.dto.KUMailRequest;
 import com.linku.backend.global.auth.dto.KUMailVerifyRequest;
-import com.linku.backend.global.auth.dto.TokenReissueRequest;
 import com.linku.backend.global.auth.dto.UserInfoResponse;
-import com.linku.backend.global.auth.service.AuthService;
 import com.linku.backend.global.auth.service.MailService;
 import com.linku.backend.global.jwt.JwtTokenService;
 import com.linku.backend.global.response.BaseResponse;
@@ -24,7 +22,6 @@ public class AuthController {
 
     private final MailService mailService;
     private final UserService userService;
-    private final AuthService authService;
 
     @PostMapping("/send-code")
     public BaseResponse<Void> sendAuthCode(@Validated @RequestBody KUMailRequest request) {
@@ -40,12 +37,6 @@ public class AuthController {
         log.debug("[verify] 사용자 메일 = {}, 인증코드 = {}", request.kuMail(), request.authCode());
         mailService.verifyAuthCode(request.kuMail(), request.authCode());
         UserInfoResponse response = userService.updateInfo(request.kuMail(), guestToken);
-        return BaseResponse.of(ResponseCode.SUCCESS, response);
-    }
-
-    @PostMapping("/token")
-    public BaseResponse<UserInfoResponse> reissueToken(@RequestBody TokenReissueRequest request) {
-        UserInfoResponse response = authService.reissueToken(request.refreshToken());
         return BaseResponse.of(ResponseCode.SUCCESS, response);
     }
 }
