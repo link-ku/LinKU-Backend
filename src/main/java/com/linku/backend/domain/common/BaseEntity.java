@@ -19,12 +19,12 @@ public abstract class BaseEntity {
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @Column(nullable = false)
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    protected Status status;
 }

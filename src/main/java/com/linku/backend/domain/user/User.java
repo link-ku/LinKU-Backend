@@ -1,6 +1,7 @@
 package com.linku.backend.domain.user;
 
 import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.domain.oauth.dto.GoogleUserInfo;
 import com.linku.backend.global.auth.AuthRole;
 import com.linku.backend.global.exception.LinkuException;
@@ -62,6 +63,7 @@ public class User extends BaseEntity {
         this.name = name;
         this.picture = picture;
         this.authRole = AuthRole.ROLE_GUEST;
+        this.status = Status.ACTIVE;
     }
 
     public void updateInfo(String kuMail) {
