@@ -59,11 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveTokenType(HttpServletRequest request) {
         String uri = request.getRequestURI();
 
-        // 게스트 토큰으로 접근해야 하는 엔드포인트들
-        // TODO: 실제 게스트 전용 엔드포인트 패턴에 맞게 수정하세요.
-        if (uri.startsWith("/api/auth/guest")
-                || uri.startsWith("/api/auth/send-code")
-                || uri.startsWith("/api/auth/verify-code")) {
+        if (uri.contains("/api/auth/send-code") || uri.contains("/api/auth/verify-code")) {
             return JwtTokenService.GUEST;
         }
 

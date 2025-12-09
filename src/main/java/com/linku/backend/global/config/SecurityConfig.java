@@ -52,10 +52,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()        //preflight 요청은 Auth token 없으므로 항상 permit
                         .requestMatchers(
-                                "/auth/send-code",
-                                "/auth/verify-code"
-                        ).hasAuthority("ROLE_GUEST")
-                        .requestMatchers(
+                                "/api/auth/send-code",
+                                "/api/auth/verify-code",
                                 "/api/example/to-be-authenticated",
                                 "/api/login/oauth2/code/google",
                                 "/api/oauth2/google/login"
