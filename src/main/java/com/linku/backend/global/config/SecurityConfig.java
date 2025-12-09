@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,6 +29,28 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenService jwtTokenService;
+
+    private final String[] PUBLIC_POST = {
+            "/auth/send",
+            "/auth/verify-code",
+    };
+
+    private final String[] PUBLIC_GET = {
+            "/",
+            "/test/hello",
+
+            "/posted-templates/public",
+            "/icons/default",
+            "/alerts/subscription",
+
+            // OAuth2
+            "/oauth2/google",
+            "/oauth2/google/login",
+
+            // Swagger UI
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
 
     @Value("${spring.front.origin}")
     private String frontOrigin;
@@ -51,13 +74,9 @@ public class SecurityConfig {
         HttpSecurity roleGuest = httpSecurity
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()        //preflight 요청은 Auth token 없으므로 항상 permit
-                        .requestMatchers(
-                                "/api/auth/send-code",
-                                "/api/auth/verify-code",
-                                "/api/example/to-be-authenticated",
-                                "/api/login/oauth2/code/google",
-                                "/api/oauth2/google/login"
-                        ).authenticated().anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenService), UsernamePasswordAuthenticationFilter.class)
